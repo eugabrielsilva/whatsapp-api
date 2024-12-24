@@ -1,6 +1,6 @@
-import { Client, LocalAuth, Message } from 'whatsapp-web.js'
+import { Client, LocalAuth, Message, MessageTypes } from 'whatsapp-web.js'
 import { generate } from 'qrcode-terminal'
-import { toUser } from './format'
+import { parseTextMessage, toUser, prettyLogger } from './format'
 import sendHook from './hook'
 
 const client = new Client({
@@ -13,27 +13,24 @@ const client = new Client({
 })
 
 client.on('qr', (qr: string) => {
-  console.warn('[AUTH] Scan the QR Code to connect to WhatsApp:')
+  prettyLogger('auth', 'Scan the QR Code below to connect to WhatsApp:')
+  prettyLogger('auth', `Raw QR Code: ${qr}`)
   generate(qr, { small: true })
 })
 
 client.once('ready', () => {
-  const number = toUser(client.info?.wid?.user || '')
-  console.log(`[AUTH] Connected to WhatsApp with ${number}.`)
-  console.log('[INFO] Client is ready.')
-})
-
-client.once('remote_session_saved', () => {
-  console.log('[AUTH] Login saved. It will be restored in the next session.')
+  const number = toUser(client.info.wid.user)
+  prettyLogger('auth', `Connected to WhatsApp with ${number}.`)
+  prettyLogger('auth', 'Client is ready.')
 })
 
 client.on('message', (message: Message) => {
   const hookUrl = process.env.WEBHOOK_URL
   if (!hookUrl?.length) return
 
-  sendHook(hookUrl, 'message_received', {
-    // Add necessary fields here
-  })
+  if (message.type === MessageTypes.TEXT) {
+    sendHook(hookUrl, 'message_received', parseTextMessage(message))
+  }
 })
 
 client.initialize()

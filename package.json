@@ -2,7 +2,10 @@
   "name": "whatsapp-api",
   "version": "0.0.1",
   "scripts": {
-    "start": "ts-node src/main.ts"
+    "start": "ts-node src/main.ts",
+    "build": "tsc",
+    "start:prod": "node dist/main.js",
+    "start:dev": "tsnd --quiet --cls --respawn src/main.ts"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -15,6 +18,7 @@
     "@types/express": "^5.0.0",
     "@types/qrcode-terminal": "^0.12.2",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.2"
   }
 }

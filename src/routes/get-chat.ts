@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express'
-import { Chat, Message } from 'whatsapp-web.js'
+import { Chat, Message, MessageTypes } from 'whatsapp-web.js'
 import client from '../utils/client'
-import { toClient, toUser, toDate } from '../utils/format'
+import { toClient, toUser, prettyLogger, parseTextMessage } from '../utils/format'
 
 const router = express.Router()
 
 function errorHandler(chatId: string, error: Error, res: Response) {
   const phone = toUser(chatId)
-  console.error(`[ERROR] Failed to get chat from ${phone}.`, error)
+  prettyLogger('error', `Failed to get chat from ${phone}.`, error)
 
   res.status(500).json({
     status: false,
@@ -30,22 +30,25 @@ router.get('/:number', (req: Request<{ number: string }>, res: Response) => {
   const chatId = toClient(number)
   const formattedPhone = toUser(number)
 
-  console.log(`[INFO] Getting chat from ${formattedPhone}...`)
+  prettyLogger('info', `Getting chat from ${formattedPhone}...`)
 
   client
     .getChatById(chatId)
     .then((chat: Chat) => {
       chat
-        .fetchMessages({})
+        .fetchMessages({
+          limit: Infinity
+        })
         .then((messages: Message[]) => {
-          const parsedMessages = messages.map((msg: Message) => ({
-            from: toUser(msg.from),
-            to: toUser(msg.to),
-            body: msg.body,
-            timestamp: toDate(msg.timestamp)
-          }))
+          const parsedMessages = messages.map((msg: Message) => {
+            if (msg.type === MessageTypes.TEXT) {
+              return parseTextMessage(msg)
+            }
 
-          console.log(`[INFO] Finished getting chat from ${formattedPhone}.`)
+            return null
+          })
+
+          prettyLogger('info', `Finished getting chat from ${formattedPhone}.`)
 
           res.status(200).json({
             status: true,

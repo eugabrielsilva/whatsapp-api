@@ -2,6 +2,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import validateToken from './utils/validate-token'
+import { prettyLogger } from './utils/format'
 
 dotenv.config()
 const app = express()
@@ -12,7 +13,7 @@ app.use(validateToken)
 
 // Auth token warning
 if (!process?.env?.AUTH_TOKEN?.length) {
-  console.warn('[WARNING] API endpoints are not properly protected using an AUTH_TOKEN env variable. This is highly recommended.')
+  prettyLogger('warning', 'API endpoints are not properly protected using an AUTH_TOKEN env variable. This is not recommended in a production server.')
 }
 
 // Routes
@@ -26,6 +27,6 @@ app.use('/get-chat', getChatRoute)
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
-  console.log(`[INFO] Server started at http://localhost:${PORT}.`)
-  console.log('[AUTH] Please wait to establish connection...')
+  prettyLogger('info', `Server started at http://localhost:${PORT}.`)
+  prettyLogger('auth', 'Please wait to establish connection...')
 })
