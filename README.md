@@ -1,6 +1,6 @@
 # WhatsApp API Server
 
-A simple HTTP server that wraps an unofficial WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client.
+A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client.
 
 ## Usage
 
@@ -12,11 +12,11 @@ A simple HTTP server that wraps an unofficial WhatsApp API. This project utilize
 
 ## Endpoint protection
 
-Endpoints can be protected using an auth token.
+Endpoints can be protected using an auth token. **This is highly recommended in a production environment.**
 
 #### Setup
 
-Add the `AUTH_TOKEN` string to your environment variables. **This is highly recommended in a production environment.**
+Add the `AUTH_TOKEN` string to your `.env` file.
 
 #### Usage
 
@@ -30,7 +30,11 @@ Include the Authorization header in all endpoint requests with your token.
 
 `POST /send-message/{number}`
 
-Sends a message to a specific phone number. Request body must be in JSON:
+Sends a message to a specific phone number. 
+
+Phone must be in international format, with the country code, area code and only numbers. E.g.: `551112345678`.
+
+Request body must be in JSON:
 
 ```json
 {
