@@ -23,6 +23,9 @@ app.use('/send-message', sendMessageRoute)
 import getChatRoute from './routes/get-chat'
 app.use('/get-chat', getChatRoute)
 
+import sendMediaRoute from './routes/send-media'
+app.use('/send-media', sendMediaRoute)
+
 // Server
 const PORT = process.env.PORT || 3000
 

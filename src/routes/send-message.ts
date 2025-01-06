@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { toClient, toUser, logger } from '../utils/format'
+import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
 
 const router = express.Router()
 
-router.post('/:number', (req: Request<{ number: string }, any, { message?: string }>, res: Response) => {
+router.post('/:number', (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response) => {
   const { number } = req.params
   const { message } = req.body
 
