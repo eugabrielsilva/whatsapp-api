@@ -6,7 +6,6 @@ import path from 'path'
 import { logger, toClient, toUser } from '../utils/format'
 import { MessageMedia } from 'whatsapp-web.js'
 import { SendMediaRequestBody, NumberRequestParams } from '../@types/request'
-import * as mime from 'mime'
 
 const router = express.Router()
 
@@ -48,9 +47,7 @@ router.post('/:number', upload.single('file'), (req: Request<NumberRequestParams
   logger('info', `Sending media to ${formattedPhone}...`)
 
   const tempFilePath = file.path
-  const fileBuffer = fs.readFileSync(tempFilePath)
-  const mimeType = mime.getType(file.originalname) || 'application/octet-stream'
-  const media = new MessageMedia(mimeType, fileBuffer.toString('base64'), file.originalname)
+  const media = MessageMedia.fromFilePath(tempFilePath)
 
   client
     .sendMessage(chatId, message || '', {
