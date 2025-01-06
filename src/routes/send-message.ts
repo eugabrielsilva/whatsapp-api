@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
 import client from '../utils/client'
-import { toClient, toUser, prettyLogger } from '../utils/format'
+import { toClient, toUser, logger } from '../utils/format'
 
 const router = express.Router()
 
@@ -27,12 +27,12 @@ router.post('/:number', (req: Request<{ number: string }, any, { message?: strin
   const chatId = toClient(number)
   const formattedPhone = toUser(number)
 
-  prettyLogger('info', `Sending message "${message}" to ${formattedPhone}...`)
+  logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
   client
     .sendMessage(chatId, message)
     .then(() => {
-      prettyLogger('info', `Message sent to ${formattedPhone}.`)
+      logger('info', `Message sent to ${formattedPhone}.`)
 
       res.status(200).json({
         status: true,
@@ -40,7 +40,7 @@ router.post('/:number', (req: Request<{ number: string }, any, { message?: strin
       })
     })
     .catch((error: Error) => {
-      prettyLogger('error', `Failed to send message to ${formattedPhone}.`, error)
+      logger('error', `Failed to send message to ${formattedPhone}.`, error)
 
       res.status(500).json({
         status: false,

@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express'
 import { Chat, Message, MessageTypes } from 'whatsapp-web.js'
 import client from '../utils/client'
-import { toClient, toUser, prettyLogger, parseTextMessage } from '../utils/format'
+import { toClient, toUser, logger, parseTextMessage } from '../utils/format'
 
 const router = express.Router()
 
 function errorHandler(chatId: string, error: Error, res: Response) {
   const phone = toUser(chatId)
-  prettyLogger('error', `Failed to get chat from ${phone}.`, error)
+  logger('error', `Failed to get chat from ${phone}.`, error)
 
   res.status(500).json({
     status: false,
@@ -30,7 +30,7 @@ router.get('/:number', (req: Request<{ number: string }>, res: Response) => {
   const chatId = toClient(number)
   const formattedPhone = toUser(number)
 
-  prettyLogger('info', `Getting chat from ${formattedPhone}...`)
+  logger('info', `Getting chat from ${formattedPhone}...`)
 
   client
     .getChatById(chatId)
@@ -48,7 +48,7 @@ router.get('/:number', (req: Request<{ number: string }>, res: Response) => {
             return null
           })
 
-          prettyLogger('info', `Finished getting chat from ${formattedPhone}.`)
+          logger('info', `Finished getting chat from ${formattedPhone}.`)
 
           res.status(200).json({
             status: true,

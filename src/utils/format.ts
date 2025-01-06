@@ -25,7 +25,7 @@ function parseTextMessage(message: Message) {
   }
 }
 
-function prettyLogger(type: string, message: string, ...optionalParams: any[]) {
+function logger(type: string, message: string, ...optionalParams: any[]) {
   const colors = {
     reset: '\x1b[0m',
     yellow: '\x1b[33m',
@@ -52,4 +52,4 @@ function prettyLogger(type: string, message: string, ...optionalParams: any[]) {
   }
 }
 
-export { toClient, toUser, toDate, parseTextMessage, prettyLogger }
+export { toClient, toUser, toDate, parseTextMessage, logger }

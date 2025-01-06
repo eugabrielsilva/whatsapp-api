@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { prettyLogger } from './format'
+import { logger } from './format'
 
 function sendHook(hookUrl: string, type: string, body: any): void {
   axios
@@ -16,10 +16,10 @@ function sendHook(hookUrl: string, type: string, body: any): void {
       }
     )
     .then(() => {
-      prettyLogger('info', `"${type}" hook sent successfully.`)
+      logger('info', `"${type}" hook sent successfully.`)
     })
     .catch((error: Error) => {
-      prettyLogger('error', `Failed to sent "${type}" hook.`, error)
+      logger('error', `Failed to sent "${type}" hook.`, error)
     })
 }
 
