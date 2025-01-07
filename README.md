@@ -36,7 +36,7 @@ Phone must be in international format, with the country code, area code and only
 
 Request body must be in JSON:
 
-```json
+```jsonc
 {
   "message": "Hello!" // required
 }
@@ -52,15 +52,15 @@ Request must be in `multipart/form-data` format.
 
 **Form fields:**
 
-| Parameter      | Description                            | Type    |
-|----------------|----------------------------------------|---------|
-| `file`         | Media file to be sent **(required)**   | Blob    |
-| `message`      | Caption to send with the media         | string  |
-| `view_once`    | Send media as view once                | boolean |
-| `as_document`  | Send media as document                 | boolean |
-| `as_voice`     | Send audio file as voice message       | boolean |
-| `as_gif`       | Send video file as GIF                 | boolean |
-| `as_sticker`   | Send image file as sticker             | boolean |
+| Parameter     | Description                          | Type    |
+| ------------- | ------------------------------------ | ------- |
+| `file`        | Media file to be sent **(required)** | Blob    |
+| `message`     | Caption to send with the media       | string  |
+| `view_once`   | Send media as view once              | boolean |
+| `as_document` | Send media as document               | boolean |
+| `as_voice`    | Send audio file as voice message     | boolean |
+| `as_gif`      | Send video file as GIF               | boolean |
+| `as_sticker`  | Send image file as sticker           | boolean |
 
 ### Send location
 
@@ -70,7 +70,7 @@ Sends a location pin to a specific phone number.
 
 Request body must be in JSON:
 
-```json
+```jsonc
 {
   "latitude": 48.85846, // required
   "longitude": 2.29447, // required
@@ -78,6 +78,12 @@ Request body must be in JSON:
   "url": "https://optionalurl.com"
 }
 ```
+
+### Get chats
+
+`GET /get-chats`
+
+Gets the list of all chats.
 
 ### Get chat
 

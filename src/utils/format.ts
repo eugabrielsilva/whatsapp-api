@@ -1,7 +1,7 @@
-import { Contact, Message, MessageTypes } from 'whatsapp-web.js'
+import { Chat, Contact, Message, MessageTypes } from 'whatsapp-web.js'
 import fs from 'fs'
 import path from 'path'
-import { FormattedMessage } from '../@types/response'
+import { FormattedChat, FormattedContact, FormattedMessage } from '../@types/response'
 import { randomUUID } from 'crypto'
 import { getExtension } from 'mime'
 
@@ -14,7 +14,7 @@ export function toUser(phone: string): string {
 }
 
 export function toDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleString()
+  return new Date(timestamp * 1000).toLocaleString()
 }
 
 export function temporaryFilename(mimeType: string) {
@@ -45,27 +45,31 @@ export function parseTextMessage(message: Message): FormattedMessage {
     body: message.body,
     date: toDate(message.timestamp),
     is_temporary: message.isEphemeral,
-    is_forwarded: message.isForwarded
+    is_forwarded: message.isForwarded,
+    is_mine: message.fromMe,
+    is_broadcast: message.broadcast
   }
 }
 
-export async function parseMediaMessage(message: Message) {
+export async function parseMediaMessage(message: Message): Promise<FormattedMessage> {
   const result: FormattedMessage = {
     ...parseTextMessage(message)
   }
 
+  const HOST = process.env.HOST || 'http://localhost'
   const PORT = process.env.PORT || 3000
 
   try {
     const media = await message.downloadMedia()
-    if (!media) return result
+    if (!media || !media.mimetype || !media.data) return result
 
+    const data = Buffer.from(media.data, 'base64')
     const filename = temporaryFilename(media.mimetype)
-    const mediaPath = path.join(process.cwd(), 'public/downloads', filename)
-    fs.writeFileSync(mediaPath, media.data)
+    const mediaPath = path.join(process.cwd(), 'public/media', filename)
+    fs.promises.writeFile(mediaPath, data)
 
     result.media = {
-      url: `http://localhost:${PORT}/downloads/${filename}`,
+      url: `${HOST}:${PORT}/media/${filename}`,
       type: media.mimetype,
       filename: media.filename
     }
@@ -77,17 +81,20 @@ export async function parseMediaMessage(message: Message) {
   }
 }
 
-export function parseLocationMessage(message: Message) {
+export function parseLocationMessage(message: Message): FormattedMessage {
   return {
     ...parseTextMessage(message),
     location: {
-      latitude: message.location.latitude,
-      longitude: message.location.longitude
+      latitude: Number(message.location.latitude),
+      longitude: Number(message.location.longitude),
+      name: message.location.options?.name,
+      address: message.location.options?.address,
+      url: message.location.options?.url
     }
   }
 }
 
-export function parseContact(contact: Contact, profilePicture: string, status: string | null) {
+export function parseContact(contact: Contact, profilePicture: string, status: string | null): FormattedContact {
   return {
     number: toUser(contact.number),
     name: contact.pushname,
@@ -101,6 +108,20 @@ export function parseContact(contact: Contact, profilePicture: string, status: s
     is_enterprise: contact.isEnterprise,
     is_me: contact.isMe,
     is_valid: contact.isWAContact
+  }
+}
+
+export function parseChatInfo(chat: Chat): FormattedChat {
+  return {
+    id: toUser(chat.id.user),
+    name: chat.name,
+    date: toDate(chat.timestamp),
+    unread_messages: chat.unreadCount,
+    is_group: chat.isGroup,
+    is_muted: chat.isMuted,
+    is_readonly: chat.isReadOnly,
+    is_archived: chat.archived,
+    is_pinned: chat.pinned
   }
 }
 

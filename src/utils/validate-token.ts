@@ -4,6 +4,10 @@ function validateToken(req: Request, res: Response, next: NextFunction): void {
   const authToken = process.env.AUTH_TOKEN
   if (!authToken?.length) return next()
 
+  if (req.path === '/test-hook' || req.path.startsWith('/media/')) {
+    return next()
+  }
+
   const authHeader = req.headers['authorization']
 
   if (!authHeader?.length) {

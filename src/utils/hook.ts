@@ -7,7 +7,7 @@ function sendHook(hookUrl: string, type: string, body: any): void {
       hookUrl,
       {
         type,
-        ...body
+        data: body
       },
       {
         headers: {

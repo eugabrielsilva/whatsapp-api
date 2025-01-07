@@ -37,10 +37,12 @@ router.get('/:number', async (req: Request<NumberRequestParams>, res: Response) 
     const chat = await client.getChatById(chatId)
     const messages = await chat.fetchMessages({ limit: Infinity })
 
-    const parsedMessages = messages.map(async (message: Message) => {
-      let messageBody = await getMessageBody(message)
-      return messageBody
-    })
+    const parsedMessages = await Promise.all(
+      messages.map(async (message: Message) => {
+        const messageBody = await getMessageBody(message)
+        return messageBody
+      })
+    )
 
     logger('info', `Finished getting chat from ${formattedPhone}.`)
 
