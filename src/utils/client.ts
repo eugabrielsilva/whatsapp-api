@@ -1,6 +1,6 @@
-import { Client, LocalAuth, Message, MessageTypes } from 'whatsapp-web.js'
+import { Client, LocalAuth, Message } from 'whatsapp-web.js'
 import { generate } from 'qrcode-terminal'
-import { parseTextMessage, toUser, logger } from './format'
+import { toUser, logger, getMessageBody } from './format'
 import sendHook from './hook'
 
 const client = new Client({
@@ -23,12 +23,14 @@ client.once('ready', () => {
   logger('auth', 'Client is ready.')
 })
 
-client.on('message', (message: Message) => {
+client.on('message', async (message: Message) => {
   const hookUrl = process.env.WEBHOOK_URL
   if (!hookUrl?.length) return
 
-  if (message.type === MessageTypes.TEXT) {
-    sendHook(hookUrl, 'message_received', parseTextMessage(message))
+  let messageBody = await getMessageBody(message)
+
+  if (messageBody) {
+    sendHook(hookUrl, 'message_received', messageBody)
   }
 })
 

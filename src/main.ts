@@ -2,6 +2,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import validateToken from './utils/validate-token'
+import path from 'path'
 import { logger } from './utils/format'
 
 dotenv.config()
@@ -10,6 +11,7 @@ const app = express()
 // Middlewares
 app.use(express.json())
 app.use(validateToken)
+app.use(express.static(path.join(process.cwd(), 'public')))
 
 // Auth token warning
 if (!process?.env?.AUTH_TOKEN?.length) {
@@ -25,6 +27,15 @@ app.use('/get-chat', getChatRoute)
 
 import sendMediaRoute from './routes/send-media'
 app.use('/send-media', sendMediaRoute)
+
+import sendLocationRoute from './routes/send-location'
+app.use('/send-location', sendLocationRoute)
+
+import getProfileRoute from './routes/get-profile'
+app.use('/get-profile', getProfileRoute)
+
+import testHookRoute from './routes/test-hook'
+app.use('/test-hook', testHookRoute)
 
 // Server
 const PORT = process.env.PORT || 3000

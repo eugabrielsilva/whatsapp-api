@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import multer from 'multer'
-import fs from 'fs'
 import path from 'path'
 import { logger, toClient, toUser } from '../utils/format'
 import { MessageMedia } from 'whatsapp-web.js'
@@ -11,7 +10,7 @@ const router = express.Router()
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'uploads'))
+    cb(null, path.join(process.cwd(), 'public/uploads'))
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname)
@@ -20,12 +19,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.post('/:number', upload.single('file'), (req: Request<NumberRequestParams, any, SendMediaRequestBody>, res: Response) => {
+router.post('/:number', upload.single('file'), async (req: Request<NumberRequestParams, any, SendMediaRequestBody>, res: Response) => {
   const { number } = req.params
-  const { message, asDocument, asViewOnce } = req.body
+  const { message, view_once, as_document, as_voice, as_gif, as_sticker } = req.body
   const file = req.file
 
-  if (!file) {
+  if (!file || !file.size) {
     res.status(400).json({
       status: false,
       error: 'No file was uploaded.'
@@ -49,31 +48,32 @@ router.post('/:number', upload.single('file'), (req: Request<NumberRequestParams
   const tempFilePath = file.path
   const media = MessageMedia.fromFilePath(tempFilePath)
 
-  client
-    .sendMessage(chatId, message || '', {
+  try {
+    await client.sendMessage(chatId, message || '', {
       media,
       caption: message,
-      isViewOnce: asViewOnce || false,
-      sendMediaAsDocument: asDocument || false
+      isViewOnce: view_once || false,
+      sendMediaAsDocument: as_document || false,
+      sendAudioAsVoice: as_voice || false,
+      sendMediaAsSticker: as_sticker || false,
+      sendVideoAsGif: as_gif || false
     })
-    .then(() => {
-      logger('info', `Media sent to ${formattedPhone}.`)
-      fs.unlink(tempFilePath, () => {})
 
-      res.status(200).json({
-        status: true,
-        message: 'Media sent successfully.'
-      })
-    })
-    .catch((error: Error) => {
-      logger('error', `Failed to send media to ${formattedPhone}.`, error)
+    logger('info', `Media sent to ${formattedPhone}.`)
 
-      res.status(500).json({
-        status: false,
-        error: 'Error sending media.',
-        details: error.message
-      })
+    res.status(200).json({
+      status: true,
+      message: 'Media sent successfully.'
     })
+  } catch (error: any) {
+    logger('error', `Failed to send media to ${formattedPhone}.`, error)
+
+    res.status(500).json({
+      status: false,
+      error: 'Error sending media.',
+      details: error?.message
+    })
+  }
 })
 
 export default router

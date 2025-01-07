@@ -5,7 +5,7 @@ import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
 
 const router = express.Router()
 
-router.post('/:number', (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response) => {
+router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response) => {
   const { number } = req.params
   const { message } = req.body
 
@@ -30,25 +30,24 @@ router.post('/:number', (req: Request<NumberRequestParams, any, SendMessageReque
 
   logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
-  client
-    .sendMessage(chatId, message)
-    .then(() => {
-      logger('info', `Message sent to ${formattedPhone}.`)
+  try {
+    await client.sendMessage(chatId, message)
 
-      res.status(200).json({
-        status: true,
-        message: 'Message sent successfully.'
-      })
-    })
-    .catch((error: Error) => {
-      logger('error', `Failed to send message to ${formattedPhone}.`, error)
+    logger('info', `Message sent to ${formattedPhone}.`)
 
-      res.status(500).json({
-        status: false,
-        error: 'Error sending message.',
-        details: error.message
-      })
+    res.status(200).json({
+      status: true,
+      message: 'Message sent successfully.'
     })
+  } catch (error: any) {
+    logger('error', `Failed to send message to ${formattedPhone}.`, error)
+
+    res.status(500).json({
+      status: false,
+      error: 'Error sending message.',
+      details: error?.message
+    })
+  }
 })
 
 export default router

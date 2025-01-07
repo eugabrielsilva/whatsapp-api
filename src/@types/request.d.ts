@@ -4,8 +4,18 @@ export type NumberRequestParams = {
 
 export type SendMediaRequestBody = {
   message?: string
-  asDocument?: boolean
-  asViewOnce?: boolean
+  view_once?: boolean
+  as_document?: boolean
+  as_voice?: boolean
+  as_gif?: boolean
+  as_sticker?: boolean
+}
+
+export type SendLocationRequestBody = {
+  latitude: number
+  longitude: number
+  address?: string
+  url?: string
 }
 
 export type SendMessageRequestBody = {

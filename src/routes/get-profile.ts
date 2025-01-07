@@ -1,18 +1,17 @@
 import express, { Request, Response } from 'express'
-import { Message } from 'whatsapp-web.js'
 import client from '../utils/client'
-import { toClient, toUser, logger, getMessageBody } from '../utils/format'
 import { NumberRequestParams } from '../@types/request'
+import { logger, parseContact, toClient, toUser } from '../utils/format'
 
 const router = express.Router()
 
 function errorHandler(chatId: string, error: any, res: Response) {
   const phone = toUser(chatId)
-  logger('error', `Failed to get chat from ${phone}.`, error)
+  logger('error', `Failed to get profile ${phone}.`, error)
 
   res.status(500).json({
     status: false,
-    error: 'Error getting chat.',
+    error: 'Error getting profile.',
     details: error?.message
   })
 }
@@ -31,22 +30,20 @@ router.get('/:number', async (req: Request<NumberRequestParams>, res: Response) 
   const chatId = toClient(number)
   const formattedPhone = toUser(number)
 
-  logger('info', `Getting chat from ${formattedPhone}...`)
+  logger('info', `Getting profile ${formattedPhone}...`)
 
   try {
-    const chat = await client.getChatById(chatId)
-    const messages = await chat.fetchMessages({ limit: Infinity })
+    const contact = await client.getContactById(chatId)
+    const profilePicture = await contact.getProfilePicUrl()
+    const status = await contact.getAbout()
 
-    const parsedMessages = messages.map(async (message: Message) => {
-      let messageBody = await getMessageBody(message)
-      return messageBody
-    })
+    const parsedContact = parseContact(contact, profilePicture, status)
 
-    logger('info', `Finished getting chat from ${formattedPhone}.`)
+    logger('info', `Finished getting profile ${formattedPhone}.`)
 
     res.status(200).json({
       status: true,
-      messages: parsedMessages
+      profile: parsedContact
     })
   } catch (error: any) {
     errorHandler(chatId, error, res)
