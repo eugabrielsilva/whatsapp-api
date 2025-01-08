@@ -2,6 +2,7 @@ import { Client, LocalAuth, Message } from 'whatsapp-web.js'
 import { generate } from 'qrcode-terminal'
 import { toUser, logger, getMessageBody } from './format'
 import sendHook from './hook'
+import AuthHelper from './auth'
 
 const client = new Client({
   puppeteer: {
@@ -13,6 +14,7 @@ const client = new Client({
 })
 
 client.on('qr', (qr: string) => {
+  AuthHelper.setQr(qr)
   logger('auth', 'Scan the QR Code below to connect to WhatsApp:')
   generate(qr, { small: true })
 })
@@ -33,7 +35,5 @@ client.on('message', async (message: Message) => {
     sendHook(hookUrl, 'message_received', messageBody)
   }
 })
-
-client.initialize()
 
 export default client

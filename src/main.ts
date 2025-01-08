@@ -11,8 +11,11 @@ import sendLocationRoute from './routes/send-location'
 import getProfileRoute from './routes/get-profile'
 import testHookRoute from './routes/test-hook'
 import getChatsRoute from './routes/get-chats'
+import loginRoute from './routes/login'
+import logoutRoute from './routes/logout'
 import cron from 'node-cron'
 import clearMediaCron from './utils/cron'
+import client from './utils/client'
 
 dotenv.config()
 const app = express()
@@ -28,6 +31,8 @@ if (!process?.env?.AUTH_TOKEN?.length) {
 }
 
 // Routes
+app.use('/login', loginRoute)
+app.use('/logout', logoutRoute)
 app.use('/send-message', sendMessageRoute)
 app.use('/get-chat', getChatRoute)
 app.use('/send-media', sendMediaRoute)
@@ -43,7 +48,10 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   logger('info', `Server started at ${HOST}:${PORT}.`)
   logger('auth', 'Please wait to establish connection...')
-})
 
-// Cron jobs
-cron.schedule('*/30 * * * *', clearMediaCron)
+  // Initialize client
+  client.initialize()
+
+  // Cron jobs
+  cron.schedule('*/30 * * * *', clearMediaCron)
+})

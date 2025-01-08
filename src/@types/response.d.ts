@@ -51,3 +51,29 @@ export type FormattedChat = {
   is_archived: boolean
   is_pinned: boolean
 }
+
+export type ErrorResponse = {
+  status: boolean
+  error: string
+  details?: string
+}
+
+export type GetChatResponse = {
+  status: boolean
+  messages: (FormattedMessage | null)[]
+}
+
+export type GetChatsResponse = {
+  status: boolean
+  chats: FormattedChat[]
+}
+
+export type GetProfileResponse = {
+  status: boolean
+  profile: FormattedContact
+}
+
+export type CreatedResponse = {
+  status: boolean
+  message: string
+}

@@ -2,11 +2,12 @@ import express, { Request, Response } from 'express'
 import { Message } from 'whatsapp-web.js'
 import client from '../utils/client'
 import { toClient, toUser, logger, getMessageBody } from '../utils/format'
-import { NumberRequestParams } from '../@types/request'
+import { GetChatRequestQuery, NumberRequestParams } from '../@types/request'
+import { ErrorResponse, GetChatResponse } from '../@types/response'
 
 const router = express.Router()
 
-function errorHandler(chatId: string, error: any, res: Response) {
+function errorHandler(chatId: string, error: any, res: Response<ErrorResponse>) {
   const phone = toUser(chatId)
   logger('error', `Failed to get chat from ${phone}.`, error)
 
@@ -17,8 +18,9 @@ function errorHandler(chatId: string, error: any, res: Response) {
   })
 }
 
-router.get('/:number', async (req: Request<NumberRequestParams>, res: Response) => {
+router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetChatRequestQuery>, res: Response<GetChatResponse | ErrorResponse>) => {
   const { number } = req.params
+  const limit = req.query?.limit || Infinity
 
   if (!number?.length) {
     res.status(400).json({
@@ -35,7 +37,7 @@ router.get('/:number', async (req: Request<NumberRequestParams>, res: Response) 
 
   try {
     const chat = await client.getChatById(chatId)
-    const messages = await chat.fetchMessages({ limit: Infinity })
+    const messages = await chat.fetchMessages({ limit })
 
     const parsedMessages = await Promise.all(
       messages.map(async (message: Message) => {

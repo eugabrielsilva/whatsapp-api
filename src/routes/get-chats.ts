@@ -2,10 +2,11 @@ import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { logger, parseChatInfo } from '../utils/format'
 import { Chat } from 'whatsapp-web.js'
+import { ErrorResponse, GetChatsResponse } from '../@types/response'
 
 const router = express.Router()
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response<GetChatsResponse | ErrorResponse>) => {
   logger('info', 'Getting all chats...')
 
   try {

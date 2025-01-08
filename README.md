@@ -1,6 +1,6 @@
 # WhatsApp API Server
 
-A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client.
+A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client. No need for a developer account or an official API key.
 
 ## Usage
 
@@ -25,6 +25,14 @@ Include the Authorization header in all endpoint requests with your token.
 `Authorization: Bearer [AUTH_TOKEN]`
 
 ## Endpoints
+
+### Login
+
+`GET /login`
+
+Used to connect to WhatsApp if you are not able to scan the QR Code in the terminal. This will return the QR Code image as PNG.
+
+**Note:** The QR Code expires and refreshes itself every 15 seconds. You must request the login route again to get a new valid code.
 
 ### Send message
 
@@ -96,3 +104,40 @@ Retrieves the available chat history of a specific phone number.
 `GET /get-profile/{number}`
 
 Retrieves the user data of a specific phone number.
+
+### Logout
+
+`POST /logout`
+
+Disconnects the WhatsApp session. **A server restart will be required.**
+
+## Webhooks
+
+### Setup
+
+Add the `WEBHOOK_URL` in the `.env` file.
+
+This URL will receive a `POST` request whenever a new message is received.
+
+The request body will be in JSON in the following format:
+
+```jsonc
+"type": "message_received",
+"data": {
+    // message data
+}
+```
+
+### Testing
+
+You can test the webhook behavior by routing the URL to the server itself:
+
+`WEBHOOK_URL=http://localhost:3000/test-hook`
+
+Whenever a webhook is received in this URL, the request body will be logged into the console.
+
+## Credits
+
+API Developed by [Gabriel Silva](https://github.com/eugabrielsilva).
+
+Special thanks to [Pedro Lopez](https://github.com/pedroslopez) for the WA client.

@@ -22,7 +22,7 @@ export function temporaryFilename(mimeType: string) {
   return randomUUID() + '.' + extension
 }
 
-export async function getMessageBody(message: Message) {
+export async function getMessageBody(message: Message): Promise<FormattedMessage | null> {
   let messageBody = null
 
   if (message.type === MessageTypes.TEXT) {
@@ -125,7 +125,7 @@ export function parseChatInfo(chat: Chat): FormattedChat {
   }
 }
 
-export function logger(type: string, message: string, ...optionalParams: any[]) {
+export function logger(type: string, message: string, ...optionalParams: any[]): void {
   const colors = {
     reset: '\x1b[0m',
     yellow: '\x1b[33m',

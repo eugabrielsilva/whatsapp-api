@@ -2,10 +2,11 @@ import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { toClient, toUser, logger } from '../utils/format'
 import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
+import { CreatedResponse, ErrorResponse } from '../@types/response'
 
 const router = express.Router()
 
-router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response) => {
+router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
   const { message } = req.body
 
@@ -35,7 +36,7 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
 
     logger('info', `Message sent to ${formattedPhone}.`)
 
-    res.status(200).json({
+    res.status(201).json({
       status: true,
       message: 'Message sent successfully.'
     })

@@ -21,3 +21,7 @@ export type SendLocationRequestBody = {
 export type SendMessageRequestBody = {
   message: string
 }
+
+export type GetChatRequestQuery = {
+  limit?: number
+}

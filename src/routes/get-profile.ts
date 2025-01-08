@@ -2,10 +2,11 @@ import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { NumberRequestParams } from '../@types/request'
 import { logger, parseContact, toClient, toUser } from '../utils/format'
+import { ErrorResponse, GetProfileResponse } from '../@types/response'
 
 const router = express.Router()
 
-function errorHandler(chatId: string, error: any, res: Response) {
+function errorHandler(chatId: string, error: any, res: Response<ErrorResponse>) {
   const phone = toUser(chatId)
   logger('error', `Failed to get profile ${phone}.`, error)
 
@@ -16,7 +17,7 @@ function errorHandler(chatId: string, error: any, res: Response) {
   })
 }
 
-router.get('/:number', async (req: Request<NumberRequestParams>, res: Response) => {
+router.get('/:number', async (req: Request<NumberRequestParams>, res: Response<GetProfileResponse | ErrorResponse>) => {
   const { number } = req.params
 
   if (!number?.length) {

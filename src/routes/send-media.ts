@@ -5,6 +5,7 @@ import path from 'path'
 import { logger, toClient, toUser } from '../utils/format'
 import { MessageMedia } from 'whatsapp-web.js'
 import { SendMediaRequestBody, NumberRequestParams } from '../@types/request'
+import { CreatedResponse, ErrorResponse } from '../@types/response'
 
 const router = express.Router()
 
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.post('/:number', upload.single('file'), async (req: Request<NumberRequestParams, any, SendMediaRequestBody>, res: Response) => {
+router.post('/:number', upload.single('file'), async (req: Request<NumberRequestParams, any, SendMediaRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
   const { message, view_once, as_document, as_voice, as_gif, as_sticker } = req.body
   const file = req.file
@@ -61,7 +62,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
 
     logger('info', `Media sent to ${formattedPhone}.`)
 
-    res.status(200).json({
+    res.status(201).json({
       status: true,
       message: 'Media sent successfully.'
     })

@@ -3,10 +3,11 @@ import client from '../utils/client'
 import { SendLocationRequestBody, NumberRequestParams } from '../@types/request'
 import { Location } from 'whatsapp-web.js'
 import { logger, toClient, toUser } from '../utils/format'
+import { CreatedResponse, ErrorResponse } from '../@types/response'
 
 const router = express.Router()
 
-router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocationRequestBody>, res: Response) => {
+router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocationRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
   const { latitude, longitude, address, url } = req.body
 
@@ -49,7 +50,7 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
 
     logger('info', `Location sent to ${formattedPhone}.`)
 
-    res.status(200).json({
+    res.status(201).json({
       status: true,
       message: 'Location sent successfully.'
     })
