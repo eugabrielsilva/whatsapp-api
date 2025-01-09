@@ -13,22 +13,24 @@ router.get('/', async (req: Request, res: Response<ErrorResponse | Buffer<ArrayB
     const state = await client.getState()
 
     if (state === WAState.CONNECTED) {
-      res.status(500).json({
+      res.status(409).json({
         status: false,
         error: 'Client is already logged in.'
       })
       return
     }
 
-    if (!AuthHelper.hasQr()) {
-      res.status(500).json({
+    const qrCode = AuthHelper.getQr()
+
+    if (qrCode === null) {
+      res.status(503).json({
         status: false,
         error: 'Login is not ready yet. Please retry in a few seconds.'
       })
       return
     }
 
-    const qrImage = await QRCode.toBuffer(String(AuthHelper.getQr()))
+    const qrImage = await QRCode.toBuffer(qrCode)
     res.setHeader('Content-Type', 'image/png').send(qrImage)
   } catch (error: any) {
     logger('error', 'Failed to get login information.', error)

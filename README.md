@@ -1,6 +1,6 @@
 # WhatsApp API Server
 
-A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client. No need for a developer account or an official API key.
+A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client. No need for a developer account or an API key.
 
 ## Usage
 
@@ -16,7 +16,7 @@ Endpoints can be protected using an auth token. **This is highly recommended in 
 
 #### Setup
 
-Add the `AUTH_TOKEN` string to your `.env` file.
+Add the `AUTH_TOKEN` string to your `.env` file. We suggest using a SHA-512 token.
 
 #### Usage
 

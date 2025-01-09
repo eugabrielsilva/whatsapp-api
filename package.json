@@ -1,6 +1,11 @@
 {
   "name": "whatsapp-api",
+  "description": "A simple HTTP server that wraps an unofficial free WhatsApp API.",
   "version": "0.0.1",
+  "license": "MIT",
+  "author": {
+    "name": "Gabriel Silva"
+  },
   "scripts": {
     "start": "ts-node src/main.ts",
     "build": "tsc",

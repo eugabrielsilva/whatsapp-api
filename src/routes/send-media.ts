@@ -48,6 +48,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
 
   const tempFilePath = file.path
   const media = MessageMedia.fromFilePath(tempFilePath)
+  media.filename = file.originalname
 
   try {
     await client.sendMessage(chatId, message || '', {

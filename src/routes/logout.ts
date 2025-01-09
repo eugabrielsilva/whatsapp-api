@@ -11,7 +11,7 @@ router.post('/', async (req: Request, res: Response<CreatedResponse | ErrorRespo
     const state = await client.getState()
 
     if (state !== WAState.CONNECTED) {
-      res.status(500).json({
+      res.status(409).json({
         status: false,
         error: 'Client is not logged in.'
       })

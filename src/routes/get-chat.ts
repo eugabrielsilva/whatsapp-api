@@ -20,7 +20,7 @@ function errorHandler(chatId: string, error: any, res: Response<ErrorResponse>) 
 
 router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetChatRequestQuery>, res: Response<GetChatResponse | ErrorResponse>) => {
   const { number } = req.params
-  const limit = req.query?.limit || Infinity
+  const limit = req.query?.limit ? Number(req.query.limit) : Infinity
 
   if (!number?.length) {
     res.status(400).json({
@@ -46,11 +46,13 @@ router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetCha
       })
     )
 
+    const filteredMessages = parsedMessages.filter(msg => msg !== null).reverse()
+
     logger('info', `Finished getting chat from ${formattedPhone}.`)
 
     res.status(200).json({
       status: true,
-      messages: parsedMessages
+      messages: filteredMessages
     })
   } catch (error: any) {
     errorHandler(chatId, error, res)

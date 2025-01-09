@@ -2,7 +2,7 @@ import { MessageTypes } from 'whatsapp-web.js'
 
 export type FormattedMessage = {
   id: string
-  type: MessageTypes
+  type: string
   from: string
   to: string
   body: string
@@ -14,23 +14,24 @@ export type FormattedMessage = {
   media?: {
     url: string
     type: string
+    extension: string
     filename?: string | null
   }
   location?: {
     latitude: number
     longitude: number
-    name?: string
-    address?: string
-    url?: string
+    name?: string | null
+    address?: string | null
+    url?: string | null
   }
 }
 
 export type FormattedContact = {
   number: string
   name: string
-  contact_name?: string
-  shortname?: string
-  profile_picture: string
+  contact_name?: string | null
+  shortname?: string | null
+  profile_picture: string | null
   status: string | null
   is_saved: boolean
   is_blocked: boolean
@@ -60,7 +61,7 @@ export type ErrorResponse = {
 
 export type GetChatResponse = {
   status: boolean
-  messages: (FormattedMessage | null)[]
+  messages: FormattedMessage[]
 }
 
 export type GetChatsResponse = {
@@ -76,4 +77,9 @@ export type GetProfileResponse = {
 export type CreatedResponse = {
   status: boolean
   message: string
+}
+
+export type MediaInfo = {
+  filename: string
+  extension: string
 }
