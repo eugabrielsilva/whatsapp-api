@@ -76,7 +76,7 @@ export type GetProfileResponse = {
 
 export type CreatedResponse = {
   status: boolean
-  message: string
+  message?: string
 }
 
 export type MediaInfo = {

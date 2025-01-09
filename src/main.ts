@@ -13,6 +13,7 @@ import testHookRoute from './routes/test-hook'
 import getChatsRoute from './routes/get-chats'
 import loginRoute from './routes/login'
 import logoutRoute from './routes/logout'
+import checkLoginRoute from './routes/check-login'
 import cron from 'node-cron'
 import clearMediaCron from './utils/cron'
 import client from './utils/client'
@@ -40,6 +41,7 @@ app.use('/send-location', sendLocationRoute)
 app.use('/get-profile', getProfileRoute)
 app.use('/get-chats', getChatsRoute)
 app.use('/test-hook', testHookRoute)
+app.use('/check-login', checkLoginRoute)
 
 // Server
 const HOST = process.env.HOST || 'http://localhost'
