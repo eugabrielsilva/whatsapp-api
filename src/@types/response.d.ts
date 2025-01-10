@@ -7,6 +7,7 @@ export type FormattedMessage = {
   to: string
   body: string
   date: string
+  timestamp: number
   is_temporary: boolean
   is_forwarded: boolean
   is_mine: boolean
@@ -45,6 +46,7 @@ export type FormattedChat = {
   id: string
   name: string
   date: string
+  timestamp: number
   unread_messages: number
   is_group: boolean
   is_muted: boolean

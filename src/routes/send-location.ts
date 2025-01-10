@@ -61,7 +61,7 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
 
     res.status(500).json({
       status: false,
-      error: 'Error sending location.',
+      error: `Error sending location to ${formattedPhone}.`,
       details: error?.message
     })
   }

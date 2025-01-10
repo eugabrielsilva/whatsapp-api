@@ -8,8 +8,4 @@ export default class AuthHelper {
   static getQr(): string | null {
     return this.qr
   }
-
-  static hasQr(): boolean {
-    return this.qr !== null
-  }
 }

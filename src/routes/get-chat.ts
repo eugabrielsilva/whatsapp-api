@@ -7,17 +7,6 @@ import { ErrorResponse, GetChatResponse } from '../@types/response'
 
 const router = express.Router()
 
-function errorHandler(chatId: string, error: any, res: Response<ErrorResponse>) {
-  const phone = toUser(chatId)
-  logger('error', `Failed to get chat from ${phone}.`, error)
-
-  res.status(500).json({
-    status: false,
-    error: 'Error getting chat.',
-    details: error?.message
-  })
-}
-
 router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetChatRequestQuery>, res: Response<GetChatResponse | ErrorResponse>) => {
   const { number } = req.params
   const limit = req.query?.limit ? Number(req.query.limit) : Infinity
@@ -25,7 +14,7 @@ router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetCha
   if (!number?.length) {
     res.status(400).json({
       status: false,
-      error: 'Missing "number" parameter.'
+      error: 'Missing "number" parameter in URL.'
     })
     return
   }
@@ -55,7 +44,13 @@ router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetCha
       messages: filteredMessages
     })
   } catch (error: any) {
-    errorHandler(chatId, error, res)
+    logger('error', `Failed to get chat from ${formattedPhone}.`, error)
+
+    res.status(500).json({
+      status: false,
+      error: `Error getting chat from ${formattedPhone}.`,
+      details: error?.message
+    })
   }
 })
 

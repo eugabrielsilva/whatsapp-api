@@ -15,7 +15,7 @@ router.get('/', async (req: Request, res: Response<CreatedResponse | ErrorRespon
   } catch (error: any) {
     res.status(500).json({
       status: false,
-      error: 'Error getting login information.',
+      error: 'Error checking login status.',
       details: error?.message
     })
   }

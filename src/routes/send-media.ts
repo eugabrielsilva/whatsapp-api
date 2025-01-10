@@ -73,7 +73,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
 
     res.status(500).json({
       status: false,
-      error: 'Error sending media.',
+      error: `Error sending media to ${formattedPhone}.`,
       details: error?.message
     })
   }

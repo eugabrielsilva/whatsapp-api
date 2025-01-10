@@ -47,7 +47,7 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
 
     res.status(500).json({
       status: false,
-      error: 'Error sending message.',
+      error: `Error sending message to ${formattedPhone}.`,
       details: error?.message
     })
   }
