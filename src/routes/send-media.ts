@@ -22,7 +22,7 @@ const upload = multer({ storage })
 
 router.post('/:number', upload.single('file'), async (req: Request<NumberRequestParams, any, SendMediaRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
-  const { message, view_once, as_document, as_voice, as_gif, as_sticker } = req.body
+  const { message, view_once, as_document, as_voice, as_gif, as_sticker, reply_to } = req.body
   const file = req.file
 
   if (!file || !file.size) {
@@ -53,12 +53,13 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
   try {
     await client.sendMessage(chatId, message || '', {
       media,
-      caption: message,
+      caption: message || undefined,
       isViewOnce: view_once || false,
       sendMediaAsDocument: as_document || false,
       sendAudioAsVoice: as_voice || false,
       sendMediaAsSticker: as_sticker || false,
-      sendVideoAsGif: as_gif || false
+      sendVideoAsGif: as_gif || false,
+      quotedMessageId: reply_to || undefined
     })
 
     logger('info', `Media sent to ${formattedPhone}.`)

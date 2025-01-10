@@ -9,6 +9,7 @@ export type SendMediaRequestBody = {
   as_voice?: boolean
   as_gif?: boolean
   as_sticker?: boolean
+  reply_to?: string
 }
 
 export type SendLocationRequestBody = {
@@ -16,10 +17,12 @@ export type SendLocationRequestBody = {
   longitude: number
   address?: string
   url?: string
+  reply_to?: string
 }
 
 export type SendMessageRequestBody = {
   message: string
+  reply_to?: string
 }
 
 export type GetChatRequestQuery = {

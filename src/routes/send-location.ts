@@ -9,7 +9,7 @@ const router = express.Router()
 
 router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocationRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
-  const { latitude, longitude, address, url } = req.body
+  const { latitude, longitude, address, url, reply_to } = req.body
 
   if (!number?.length) {
     res.status(400).json({
@@ -36,8 +36,8 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
   }
 
   const location = new Location(latitude, longitude, {
-    address,
-    url
+    address: address || undefined,
+    url: url || undefined
   })
 
   const chatId = toClient(number)
@@ -46,7 +46,9 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
   logger('info', `Sending location "${latitude},${longitude}" to ${formattedPhone}...`)
 
   try {
-    await client.sendMessage(chatId, location)
+    await client.sendMessage(chatId, location, {
+      quotedMessageId: reply_to || undefined
+    })
 
     logger('info', `Location sent to ${formattedPhone}.`)
 

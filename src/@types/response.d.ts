@@ -69,6 +69,11 @@ export type GetChatsResponse = {
   chats: FormattedChat[]
 }
 
+export type GetContactsResponse = {
+  status: boolean
+  contacts: FormattedContact[]
+}
+
 export type GetProfileResponse = {
   status: boolean
   profile: FormattedContact

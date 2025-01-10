@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessageRequestBody>, res: Response<CreatedResponse | ErrorResponse>) => {
   const { number } = req.params
-  const { message } = req.body
+  const { message, reply_to } = req.body
 
   if (!number?.length) {
     res.status(400).json({
@@ -32,7 +32,9 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
   logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
   try {
-    await client.sendMessage(chatId, message)
+    await client.sendMessage(chatId, message, {
+      quotedMessageId: reply_to || undefined
+    })
 
     logger('info', `Message sent to ${formattedPhone}.`)
 
