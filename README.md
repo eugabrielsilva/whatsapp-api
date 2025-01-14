@@ -46,7 +46,8 @@ Request body must be in JSON:
 
 ```jsonc
 {
-  "message": "Hello!" // required
+  "message": "Hello!", // required
+  "reply_to": "MESSAGE_ID" // (optional) ID of another message to quote as reply
 }
 ```
 
@@ -69,6 +70,7 @@ Request must be in `multipart/form-data` format.
 | `as_voice`    | Send audio file as voice message     | boolean |
 | `as_gif`      | Send video file as GIF               | boolean |
 | `as_sticker`  | Send image file as sticker           | boolean |
+| `reply_to`    | ID of another message to quote       | string  |
 
 ### Send location
 
@@ -82,8 +84,9 @@ Request body must be in JSON:
 {
   "latitude": 48.85846, // required
   "longitude": 2.29447, // required
-  "address": "Optional address to send with the location",
-  "url": "https://optionalurl.com"
+  "address": "Optional address to send with the location", // (optional)
+  "url": "https://optionalurl.com", // (optional),
+  "reply_to": "MESSAGE_ID" // (optional) ID of another message to quote as reply
 }
 ```
 
@@ -97,7 +100,9 @@ Gets the list of all chats.
 
 `GET /get-chat/{number}`
 
-Retrieves the available chat history of a specific phone number.
+Retrieves the available chat history of a specific phone number. Messages will be sorted in descending order.
+
+You can pass an optional `?limit=` parameter in the URL to limit the maximum number of messages to fetch.
 
 ### Get profile
 
@@ -105,11 +110,29 @@ Retrieves the available chat history of a specific phone number.
 
 Retrieves the user data of a specific phone number.
 
+### Get contacts
+
+`GET /get-contacts`
+
+Retrieves a list of all saved contacts.
+
+### Get current user
+
+`GET /get-me`
+
+Retrieves the current connected user.
+
+### Check login status
+
+`GET /check-login`
+
+Checks if the client is connected and WhatsApp is online.
+
 ### Logout
 
 `POST /logout`
 
-Disconnects the WhatsApp session. **A server restart will be required.**
+Disconnects the WhatsApp session. **A server restart will be required to reconnect.**
 
 ## Webhooks
 
