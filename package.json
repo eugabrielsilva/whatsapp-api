@@ -21,7 +21,7 @@
     "node-cron": "^3.0.3",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "github:specious/qrcode-terminal",
-    "whatsapp-web.js": "^v1.26.1-alpha.3"
+    "whatsapp-web.js": "^1.26.1-alpha.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
