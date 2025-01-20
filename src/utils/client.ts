@@ -6,9 +6,7 @@ import AuthHelper from './auth'
 
 const client = new Client({
   puppeteer: {
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    headless: true,
-    timeout: 0
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   },
   authStrategy: new LocalAuth(),
   takeoverOnConflict: true
