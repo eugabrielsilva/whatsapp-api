@@ -90,3 +90,11 @@ export type MediaInfo = {
   filename: string
   extension: string
 }
+
+export type QRCodeResponse = {
+  status: boolean
+  data: {
+    raw: string
+    base64: string
+  }
+}

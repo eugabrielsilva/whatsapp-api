@@ -30,7 +30,9 @@ Include the Authorization header in all endpoint requests with your token.
 
 `GET /login`
 
-Used to connect to WhatsApp if you are not able to scan the QR Code in the terminal. This will return the QR Code image as PNG.
+Used to connect to WhatsApp if you are not able to scan the QR Code in the terminal. This will retrieve the QR Code data.
+
+You can pass an optional `?render=1` parameter in the URL to get the QR Code rendered as PNG.
 
 **Note:** The QR Code expires and refreshes itself every 15 seconds. You must request the login route again to get a new valid code.
 

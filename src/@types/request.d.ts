@@ -35,3 +35,7 @@ export type SendMessageRequestBody = {
 export type GetChatRequestQuery = {
   limit?: number
 }
+
+export type LoginRequestQuery = {
+  render?: boolean
+}
