@@ -2,6 +2,13 @@ export type NumberRequestParams = {
   number: string
 }
 
+export type SearchMessagesRequestQuery = {
+  query: string
+  limit?: number
+  page?: number
+  number?: string
+}
+
 export type SendMediaRequestBody = {
   message?: string
   view_once?: boolean

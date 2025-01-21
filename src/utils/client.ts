@@ -6,10 +6,12 @@ import AuthHelper from './auth'
 
 const client = new Client({
   puppeteer: {
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: process.env.CHROME_PATH || undefined
   },
   authStrategy: new LocalAuth(),
-  takeoverOnConflict: true
+  takeoverOnConflict: true,
+  ffmpegPath: process.env.FFMPEG_PATH || undefined
 })
 
 client.on('qr', (qr: string) => {
