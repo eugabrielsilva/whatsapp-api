@@ -20,10 +20,22 @@ client.on('qr', (qr: string) => {
   generate(qr, { small: true })
 })
 
-client.once('ready', () => {
+client.on('ready', () => {
   const number = toUser(client.info.wid.user)
   logger('auth', `Connected to WhatsApp with ${number}.`)
   logger('auth', 'Client is ready.')
+})
+
+client.on('auth_failure', () => {
+  logger('error', 'Authentication failed. Please try again.')
+})
+
+client.on('authenticated', () => {
+  logger('auth', 'Successfully authenticated.')
+})
+
+client.on('disconnected', () => {
+  logger('auth', 'Client disconnected.')
 })
 
 client.on('message', async (message: Message) => {
