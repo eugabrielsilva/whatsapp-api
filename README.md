@@ -106,6 +106,21 @@ Retrieves the available chat history of a specific phone number. Messages will b
 
 You can pass an optional `?limit=` parameter in the URL to limit the maximum number of messages to fetch.
 
+### Search messages
+
+`GET /search-messages`
+
+Searches for messages in the user chats.
+
+**URL query parameters:**
+
+| Parameter | Description                                   | Type   |
+| --------- | --------------------------------------------- | ------ |
+| `query`   | Search query **(required)**                   | string |
+| `limit`   | Max number of messages to fetch               | number |
+| `page`    | Page number to fetch                          | number |
+| `number`  | Phone number to search inside a specific chat | string |
+
 ### Get profile
 
 `GET /get-profile/{number}`
@@ -123,6 +138,18 @@ Retrieves a list of all saved contacts.
 `GET /get-me`
 
 Retrieves the current connected user.
+
+### Set online
+
+`POST /set-online`
+
+Sets the user presence status to online.
+
+### Set offline
+
+`POST /set-offline`
+
+Sets the user presence status to offline.
 
 ### Check login status
 
