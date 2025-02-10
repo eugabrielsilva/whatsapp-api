@@ -37,5 +37,5 @@ app.listen(PORT, () => {
   client.initialize()
 
   // Cron jobs
-  cron.schedule('*/30 * * * *', clearMediaCron)
+  cron.schedule('0 * * * *', clearMediaCron)
 })
