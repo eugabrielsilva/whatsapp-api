@@ -17,13 +17,21 @@ router.get('/:number', async (req: Request<NumberRequestParams>, res: Response<G
     return
   }
 
-  const chatId = toClient(number)
   const formattedPhone = toUser(number)
+  const chatId = await client.getNumberId(toClient(number))
+
+  if (!chatId) {
+    res.status(404).json({
+      status: false,
+      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+    })
+    return
+  }
 
   logger('info', `Getting profile ${formattedPhone}...`)
 
   try {
-    const contact = await client.getContactById(chatId)
+    const contact = await client.getContactById(chatId._serialized)
     const profilePicture = await contact.getProfilePicUrl()
     const status = await contact.getAbout()
 

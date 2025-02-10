@@ -41,8 +41,16 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
     return
   }
 
-  const chatId = toClient(number)
   const formattedPhone = toUser(number)
+  const chatId = await client.getNumberId(toClient(number))
+
+  if (!chatId) {
+    res.status(404).json({
+      status: false,
+      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+    })
+    return
+  }
 
   logger('info', `Sending media to ${formattedPhone}...`)
 
@@ -51,7 +59,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
   media.filename = file.originalname
 
   try {
-    await client.sendMessage(chatId, message || '', {
+    await client.sendMessage(chatId._serialized, message || '', {
       media,
       caption: message || undefined,
       isViewOnce: view_once || false,
@@ -66,7 +74,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
 
     res.status(201).json({
       status: true,
-      message: 'Media sent successfully.'
+      message: `Media sent successfully to ${formattedPhone}.`
     })
   } catch (error: any) {
     logger('error', `Failed to send media to ${formattedPhone}.`, error)

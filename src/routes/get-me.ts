@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express'
 import client from '../utils/client'
-import { logger, parseContact, toClient, toUser } from '../utils/format'
+import { logger, parseContact } from '../utils/format'
 import { ErrorResponse, GetProfileResponse } from '../@types/response'
 
 const router = express.Router()
 
 router.get('/', async (req: Request, res: Response<GetProfileResponse | ErrorResponse>) => {
-  const chatId = toClient(client.info.wid.user)
+  const chatId = client.info.wid._serialized
 
   logger('info', `Getting current user profile...`)
 

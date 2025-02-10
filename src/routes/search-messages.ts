@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import { Message } from 'whatsapp-web.js'
 import client from '../utils/client'
-import { toClient, logger, getMessageBody } from '../utils/format'
+import { toClient, logger, getMessageBody, toUser } from '../utils/format'
 import { SearchMessagesRequestQuery } from '../@types/request'
 import { ErrorResponse, GetChatResponse } from '../@types/response'
 
@@ -21,10 +21,26 @@ router.get('/', async (req: Request<any, any, any, SearchMessagesRequestQuery>, 
   logger('info', `Searching messages for "${query}"...`)
 
   try {
+    let chatId: string | undefined = undefined
+
+    if (number?.length) {
+      const formattedPhone = toUser(number)
+      const numberChatId = await client.getNumberId(toClient(number))
+      if (!numberChatId) {
+        res.status(404).json({
+          status: false,
+          error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+        })
+        return
+      }
+
+      chatId = numberChatId._serialized
+    }
+
     const messages = await client.searchMessages(query, {
       limit,
       page,
-      chatId: number?.length ? toClient(number) : undefined
+      chatId
     })
 
     const parsedMessages = await Promise.all(

@@ -26,13 +26,21 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
     return
   }
 
-  const chatId = toClient(number)
   const formattedPhone = toUser(number)
+  const chatId = await client.getNumberId(toClient(number))
+
+  if (!chatId) {
+    res.status(404).json({
+      status: false,
+      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+    })
+    return
+  }
 
   logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
   try {
-    await client.sendMessage(chatId, message, {
+    await client.sendMessage(chatId._serialized, message, {
       quotedMessageId: reply_to || undefined
     })
 
@@ -40,7 +48,7 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
 
     res.status(201).json({
       status: true,
-      message: 'Message sent successfully.'
+      message: `Message sent successfully to ${formattedPhone}.`
     })
   } catch (error: any) {
     logger('error', `Failed to send message to ${formattedPhone}.`, error)

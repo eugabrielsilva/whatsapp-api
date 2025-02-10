@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto'
 import { getExtension } from 'mime'
 
 export function toClient(phone: string): string {
-  return phone.replace(/\D/g, '') + '@c.us'
+  return phone.replace(/\D/g, '')
 }
 
 export function toUser(phone: string): string {
@@ -124,7 +124,7 @@ export function parseContact(contact: Contact, profilePicture: string, status: s
 
 export function parseChatInfo(chat: Chat): FormattedChat {
   return {
-    id: toUser(chat.id.user),
+    id: toUser(chat.id._serialized),
     name: chat.name,
     date: toDate(chat.timestamp),
     timestamp: chat.timestamp,
