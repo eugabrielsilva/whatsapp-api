@@ -11,7 +11,7 @@ function clearMediaCron() {
   const hours24Millis = 24 * 60 * 60 * 1000
   let count = 0
 
-  files.forEach(file => {
+  files.forEach((file: string) => {
     if (file !== '.gitignore') {
       const filePath = path.join(folderPath, file)
       const stats = fs.statSync(filePath)

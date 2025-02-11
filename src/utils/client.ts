@@ -26,16 +26,16 @@ client.on('ready', () => {
   logger('auth', 'Client is ready.')
 })
 
-client.on('auth_failure', () => {
-  logger('error', 'Authentication failed. Please try again.')
+client.on('auth_failure', (error: string) => {
+  logger('error', 'Authentication failed. Please try again.', error)
 })
 
 client.on('authenticated', () => {
   logger('auth', 'Successfully authenticated.')
 })
 
-client.on('disconnected', () => {
-  logger('auth', 'Client disconnected.')
+client.on('disconnected', (reason: string) => {
+  logger('auth', 'Client disconnected.', reason)
 })
 
 client.on('message', async (message: Message) => {

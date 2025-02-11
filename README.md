@@ -58,7 +58,7 @@ Request body must be in JSON:
 ```
 
 > [!CAUTION]
-> Since this is an unofficial API, your account may be banned if you violate WhatsApp's terms of service by sending too many messages or engaging in abusive behavior.
+> Since this is an unofficial API, your account may be banned if you violate WhatsApp's terms of service by sending too many messages or engaging in abusive behavior. Be careful with spam reports.
 
 ### Send media
 

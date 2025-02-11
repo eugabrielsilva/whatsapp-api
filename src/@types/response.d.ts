@@ -1,4 +1,4 @@
-import { MessageTypes } from 'whatsapp-web.js'
+import { ClientInfo, MessageTypes, WAState } from 'whatsapp-web.js'
 
 export type FormattedMessage = {
   id: string
@@ -96,5 +96,14 @@ export type QRCodeResponse = {
   data: {
     raw: string
     base64: string
+  }
+}
+
+export type InfoResponse = {
+  status: boolean
+  data: {
+    client: ClientInfo
+    version: string
+    state: WAState
   }
 }
