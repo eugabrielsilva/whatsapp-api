@@ -24,6 +24,7 @@ export type FormattedMessage = {
     name?: string | null
     address?: string | null
     url?: string | null
+    description?: string | null
   }
 }
 

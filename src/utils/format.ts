@@ -98,9 +98,10 @@ export function parseLocationMessage(message: Message): FormattedMessage {
     location: {
       latitude: Number(message.location.latitude),
       longitude: Number(message.location.longitude),
-      name: message.location.options?.name || null,
-      address: message.location.options?.address || null,
-      url: message.location.options?.url || null
+      name: message.location.name || null,
+      address: message.location.address || null,
+      description: message.location.description || null,
+      url: message.location.url || null
     }
   }
 }

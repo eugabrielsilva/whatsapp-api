@@ -2,6 +2,7 @@ import axios from 'axios'
 import { logger } from './format'
 
 function sendHook(hookUrl: string, type: string, body: any): void {
+  const token = process.env.WEBHOOK_SECRET || ''
   axios
     .post(
       hookUrl,
@@ -11,7 +12,8 @@ function sendHook(hookUrl: string, type: string, body: any): void {
       },
       {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       }
     )
