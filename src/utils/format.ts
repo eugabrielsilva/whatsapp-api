@@ -58,7 +58,8 @@ export function parseTextMessage(message: Message): FormattedMessage {
 
 export async function parseMediaMessage(message: Message): Promise<FormattedMessage> {
   const result: FormattedMessage = {
-    ...parseTextMessage(message)
+    ...parseTextMessage(message),
+    type: message.type === MessageTypes.VOICE ? 'voice' : message.type
   }
 
   const HOST = process.env.HOST || 'http://localhost'
