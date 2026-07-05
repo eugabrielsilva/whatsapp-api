@@ -13,15 +13,15 @@
     "start:dev": "tsnd --quiet --cls --respawn src/main.ts"
   },
   "dependencies": {
-    "axios": "^1.11.0",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
+    "axios": "^1.18.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "mime": "^2.6.0",
-    "multer": "^2.0.2",
-    "node-cron": "^4.2.1",
+    "multer": "^2.2.0",
+    "node-cron": "^4.5.0",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "github:specious/qrcode-terminal",
-    "whatsapp-web.js": "^1.32.0"
+    "whatsapp-web.js": "^1.34.7"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
