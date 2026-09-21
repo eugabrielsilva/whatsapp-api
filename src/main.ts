@@ -9,7 +9,7 @@ import clearMediaCron from './utils/cron'
 import client from './utils/client'
 import { AppRouter } from './router'
 
-dotenv.config()
+dotenv.config({ quiet: true })
 const app = express()
 
 // Middlewares

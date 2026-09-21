@@ -2,6 +2,8 @@
 
 A simple HTTP server that wraps an unofficial free WhatsApp API. This project utilizes [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) under the hood to create a WhatsApp client. No need for a developer account or an API key.
 
+> [!CAUTION] Since this is an unofficial API, your account may be banned if you violate WhatsApp's terms of service by sending too many messages or engaging in abusive behavior. Be careful with spam reports.
+
 ## Usage
 
 1. Install the dependencies by running `npm install`.
@@ -14,8 +16,7 @@ A simple HTTP server that wraps an unofficial free WhatsApp API. This project ut
 
 Endpoints can be protected using an auth token.
 
-> [!WARNING]
-> It is highly recommended to use an auth token in a production environment. Otherwise, your API will be exposed to other users.
+> [!WARNING] It is highly recommended to use an auth token in a production environment. Otherwise, your API will be exposed to other users.
 
 #### Setup
 
@@ -37,8 +38,7 @@ Used to connect to WhatsApp if you are not able to scan the QR Code in the termi
 
 You can pass an optional `?render=1` parameter in the URL to get the QR Code rendered as PNG.
 
-> [!IMPORTANT]
-> The QR Code expires and refreshes itself every 20 seconds. You must request the login route again to get a new valid code.
+> [!IMPORTANT] The QR Code expires and refreshes itself every 20 seconds. You must request the login route again to get a new valid code.
 
 ### Send message
 
@@ -56,9 +56,6 @@ Request body must be in JSON:
   "reply_to": "MESSAGE_ID" // (optional) ID of another message to quote as reply
 }
 ```
-
-> [!CAUTION]
-> Since this is an unofficial API, your account may be banned if you violate WhatsApp's terms of service by sending too many messages or engaging in abusive behavior. Be careful with spam reports.
 
 ### Send media
 
@@ -113,8 +110,7 @@ Retrieves the available chat history of a specific phone number. Messages will b
 
 You can pass an optional `?limit=` parameter in the URL to limit the maximum number of messages to fetch.
 
-> [!NOTE]
-> Media files are downloaded and stored for 24 hours before being deleted.
+> [!NOTE] Media files are downloaded and stored for 24 hours before being deleted.
 
 ### Search messages
 
@@ -167,14 +163,19 @@ Sets the user presence status to offline.
 
 Checks if the client is connected and WhatsApp is online.
 
+### Get client info
+
+`GET /info`
+
+Gets the client info and connection details.
+
 ### Logout
 
 `POST /logout`
 
 Disconnects the WhatsApp session.
 
-> [!IMPORTANT]
-> A server restart is required to reconnect after logging out.
+> [!IMPORTANT] A server restart is required to reconnect after logging out.
 
 ## Webhooks
 
