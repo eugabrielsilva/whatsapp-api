@@ -4,6 +4,7 @@ import path from 'path'
 import { FormattedChat, FormattedContact, FormattedMessage, MediaInfo } from '../@types/response'
 import { randomUUID } from 'crypto'
 import { getExtension } from 'mime'
+import client from './client'
 
 export function toClient(phone: string): string {
   return phone.replace(/\D/g, '')
@@ -14,7 +15,7 @@ export function toUser(phone: string): string {
 }
 
 export function toDate(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleString()
+  return new Date(timestamp * 1000).toISOString()
 }
 
 export function getMediaFilename(message: Message, media: MessageMedia): MediaInfo {
@@ -30,9 +31,9 @@ export async function getMessageBody(message: Message): Promise<FormattedMessage
   let messageBody = null
 
   if (message.type === MessageTypes.TEXT) {
-    messageBody = parseTextMessage(message)
+    messageBody = await parseTextMessage(message)
   } else if (message.type === MessageTypes.LOCATION) {
-    messageBody = parseLocationMessage(message)
+    messageBody = await parseLocationMessage(message)
   } else if (message.hasMedia) {
     messageBody = await parseMediaMessage(message)
   }
@@ -40,12 +41,14 @@ export async function getMessageBody(message: Message): Promise<FormattedMessage
   return messageBody
 }
 
-export function parseTextMessage(message: Message): FormattedMessage {
+export async function parseTextMessage(message: Message): Promise<FormattedMessage> {
+  const contacts = await client.getContactLidAndPhone([message.from, message.to])
+
   return {
     id: message.id.id,
     type: message.type == MessageTypes.TEXT ? 'text' : message.type,
-    from: toUser(message.from),
-    to: toUser(message.to),
+    from: toUser(contacts?.[0]?.pn ?? message.from),
+    to: toUser(contacts?.[1]?.pn ?? message.to),
     body: message.body,
     date: toDate(message.timestamp),
     timestamp: message.timestamp,
@@ -57,8 +60,10 @@ export function parseTextMessage(message: Message): FormattedMessage {
 }
 
 export async function parseMediaMessage(message: Message): Promise<FormattedMessage> {
+  const textMessage = await parseTextMessage(message)
+
   const result: FormattedMessage = {
-    ...parseTextMessage(message),
+    ...textMessage,
     type: message.type === MessageTypes.VOICE ? 'voice' : message.type
   }
 
@@ -93,9 +98,11 @@ export async function parseMediaMessage(message: Message): Promise<FormattedMess
   }
 }
 
-export function parseLocationMessage(message: Message): FormattedMessage {
+export async function parseLocationMessage(message: Message): Promise<FormattedMessage> {
+  const textMessage = await parseTextMessage(message)
+
   return {
-    ...parseTextMessage(message),
+    ...textMessage,
     location: {
       latitude: Number(message.location.latitude),
       longitude: Number(message.location.longitude),

@@ -42,7 +42,7 @@ client.on('message', async (message: Message) => {
   const hookUrl = process.env.WEBHOOK_URL
   if (!hookUrl?.length) return
 
-  let messageBody = await getMessageBody(message)
+  const messageBody = await getMessageBody(message)
 
   if (messageBody) {
     sendHook(hookUrl, 'message_received', messageBody)
