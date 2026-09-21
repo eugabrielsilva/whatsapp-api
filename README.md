@@ -7,11 +7,20 @@ A simple HTTP server that wraps an unofficial free WhatsApp API. This project ut
 
 ## Usage
 
-1. Install the dependencies by running `npm install`.
-2. Copy the `.env.example` file and rename it to `.env`.
-3. Start the server by running `npm start`.
-4. Scan the QR code displayed in the terminal using the WhatsApp app on your phone. Your session will be saved.
-5. The server will be accessible at `http://localhost:3000` or at another port you specify.
+1. Clone the repository or download the ZIP from the [releases page](https://github.com/eugabrielsilva/whatsapp-api/releases).
+2. Install the dependencies by running `npm install`.
+3. Copy the `.env.example` file and rename it to `.env`.
+4. Start the server by running `npm start`.
+5. Scan the QR code displayed in the terminal using the WhatsApp app on your phone. Your session will be saved.
+6. The server will be accessible at `http://localhost:3000` or at another port you specify.
+
+## Server requirements
+
+Some servers may require additional dependencies to run this application. If you encounter any errors while running it, execute the following command in the application folder:
+
+```bash
+npx puppeteer browsers install chrome --with-deps
+```
 
 ## Endpoint protection
 
@@ -30,7 +39,7 @@ Include the Authorization header in all endpoint requests with your token.
 
 `Authorization: Bearer [AUTH_TOKEN]`
 
-## Endpoints
+## API Endpoints
 
 ### Login
 
@@ -195,9 +204,56 @@ The request body will be in JSON in the following format:
 ```jsonc
 "type": "message_received",
 "data": {
-    // message data
+    "id": "...",
+    "type": "text",
+    "from": "+1111111111111",
+    "to": "+1111111111111",
+    "body": "...",
+    "date": "2026-09-21T18:22:00.000Z",
+    "timestamp": 1790014920, 
+    "is_temporary": false,
+    "is_forwarded": false,
+    "is_mine": false,
+    "is_broadcast": false,
+    "media": {
+      // only media messages
+      "url": "...",
+      "type": "image/jpeg",
+      "extension": "jpg",
+      "filename": "..."
+    },
+    "location": {
+      // only location messages
+      "latitude": 48.85837,
+      "longitude": 2.29448,
+      "name": "...",
+      "address": "...",
+      "description": "...",
+      "url": "..."
+    },
+    "contact": {
+      // only contact messages
+      "number": "+1111111111111",
+      "name": "...",
+      "contact_name": "...",
+      "shortname": "...",
+      "profile_picture": "...",
+      "status": "...",
+      "is_saved": false,
+      "is_blocked": false,
+      "is_business": false,
+      "is_enterprise": false,
+      "is_me": false,
+      "is_valid": true
+    }
 }
 ```
+
+### Security
+
+You can define a secret token for the webhook using the `WEBHOOK_SECRET` variable in the `.env` file.
+
+This token will be sent as a Bearer token in the Authorization header of all webhook requests.
 
 ### Testing
 
