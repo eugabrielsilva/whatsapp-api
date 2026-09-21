@@ -6,6 +6,7 @@ import { logger, toClient, toUser } from '../utils/format'
 import { MessageMedia } from 'whatsapp-web.js'
 import { SendMediaRequestBody, NumberRequestParams } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
+import Queue from '../utils/queue'
 
 const router = express.Router()
 
@@ -59,15 +60,17 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
   media.filename = file.originalname
 
   try {
-    await client.sendMessage(chatId._serialized, message || '', {
-      media,
-      caption: message || undefined,
-      isViewOnce: view_once || false,
-      sendMediaAsDocument: as_document || false,
-      sendAudioAsVoice: as_voice || false,
-      sendMediaAsSticker: as_sticker || false,
-      sendVideoAsGif: as_gif || false,
-      quotedMessageId: reply_to || undefined
+    Queue.add(async () => {
+      await client.sendMessage(chatId._serialized, message || '', {
+        media,
+        caption: message || undefined,
+        isViewOnce: view_once || false,
+        sendMediaAsDocument: as_document || false,
+        sendAudioAsVoice: as_voice || false,
+        sendMediaAsSticker: as_sticker || false,
+        sendVideoAsGif: as_gif || false,
+        quotedMessageId: reply_to || undefined
+      })
     })
 
     logger('info', `Media sent to ${formattedPhone}.`)

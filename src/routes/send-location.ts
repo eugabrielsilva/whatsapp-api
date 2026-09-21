@@ -4,6 +4,7 @@ import { SendLocationRequestBody, NumberRequestParams } from '../@types/request'
 import { Location } from 'whatsapp-web.js'
 import { logger, toClient, toUser } from '../utils/format'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
+import Queue from '../utils/queue'
 
 const router = express.Router()
 
@@ -54,8 +55,10 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
   logger('info', `Sending location "${latitude},${longitude}" to ${formattedPhone}...`)
 
   try {
-    await client.sendMessage(chatId._serialized, location, {
-      quotedMessageId: reply_to || undefined
+    Queue.add(async () => {
+      await client.sendMessage(chatId._serialized, location, {
+        quotedMessageId: reply_to || undefined
+      })
     })
 
     logger('info', `Location sent to ${formattedPhone}.`)

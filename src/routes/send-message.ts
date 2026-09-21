@@ -3,6 +3,7 @@ import client from '../utils/client'
 import { toClient, toUser, logger } from '../utils/format'
 import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
+import Queue from '../utils/queue'
 
 const router = express.Router()
 
@@ -40,8 +41,10 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
   logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
   try {
-    await client.sendMessage(chatId._serialized, message, {
-      quotedMessageId: reply_to || undefined
+    Queue.add(async () => {
+      await client.sendMessage(chatId._serialized, message, {
+        quotedMessageId: reply_to || undefined
+      })
     })
 
     logger('info', `Message sent to ${formattedPhone}.`)
