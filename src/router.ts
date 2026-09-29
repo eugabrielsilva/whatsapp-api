@@ -16,6 +16,7 @@ import setOfflineRoute from './routes/set-offline'
 import setOnlineRoute from './routes/set-online'
 import infoRoute from './routes/info'
 import managerRoute from './routes/manager'
+import getHistoryRoute from './routes/get-history'
 
 const ROUTES: [string, Router][] = [
   ['/login', loginRoute],
@@ -34,7 +35,8 @@ const ROUTES: [string, Router][] = [
   ['/test-hook', testHookRoute],
   ['/check-login', checkLoginRoute],
   ['/info', infoRoute],
-  ['/manager', managerRoute]
+  ['/manager', managerRoute],
+  ['/get-history', getHistoryRoute]
 ]
 
 export class AppRouter {

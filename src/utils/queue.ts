@@ -1,18 +1,24 @@
+import { Job, MessageHistory } from "../@types/other"
 import { logger } from "./format"
-
-type Job = {
-    callback: () => Promise<void>
-    delay: number
-}
 
 export default class Queue {
     static jobs: Job[] = []
+    static history: MessageHistory[] = []
     static running = false
 
-    static add(callback: () => Promise<void>): void {
+    static add(callback: (id: string) => Promise<void>): void {
+        const id = crypto.randomUUID()
+
         this.jobs.push({
+            id,
             callback,
             delay: this.randomDelay()
+        })
+
+        this.history.push({
+            job_id: id,
+            created_at: new Date().toISOString(),
+            status: 'queued',
         })
 
         this.run()
@@ -26,16 +32,33 @@ export default class Queue {
         this.running = true
 
         while (this.jobs.length > 0) {
+            const job = this.jobs.shift()!
+
             try {
-                const job = this.jobs.shift()!
                 await this.sleep(job.delay)
-                await job.callback()
-            } catch (error) {
+                await job.callback(job.id)
+            } catch (error: any) {
                 logger('error', 'Failed to process queue job:', error)
+
+                this.updateHistory(job.id, {
+                    status: 'failed',
+                    error
+                })
             }
         }
 
         this.running = false
+    }
+
+    static async updateHistory(job_id: string, data: Partial<MessageHistory>) {
+        const index = this.history.findIndex((i) => i.job_id === job_id)
+
+        if (index > -1) {
+            this.history[index] = {
+                ...this.history[index],
+                ...data
+            }
+        }
     }
 
     static randomDelay(): number {

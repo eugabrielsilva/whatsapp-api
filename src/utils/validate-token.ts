@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
 
-function validateToken(req: Request, res: Response, next: NextFunction): void {
-  const authToken = process.env.AUTH_TOKEN
-  if (!authToken?.length) return next()
+const AUTH_TOKEN = process.env.AUTH_TOKEN
 
-  const excludedRoutes = [
-    '/test-hook',
-    '/media/*',
-    '/manager/*'
-  ]
+const EXCLUDED_ROUTES = [
+  '/test-hook',
+  '/media/.+',
+  '/manager(/.*)?'
+]
 
-  if (excludedRoutes.some(route => req.path.match(new RegExp(`^${route}$`)))) {
+export default function validateToken(req: Request, res: Response, next: NextFunction): void {
+  if (!AUTH_TOKEN?.length) return next()
+
+  if (EXCLUDED_ROUTES.some(route => req.path.match(new RegExp(`^${route}$`)))) {
     return next()
   }
 
@@ -26,7 +27,7 @@ function validateToken(req: Request, res: Response, next: NextFunction): void {
 
   const token = authHeader.split(' ')[1]
 
-  if (!token?.length || token !== authToken) {
+  if (!token?.length || token !== AUTH_TOKEN) {
     res.status(403).json({
       status: false,
       error: 'Invalid auth token.'
@@ -36,5 +37,3 @@ function validateToken(req: Request, res: Response, next: NextFunction): void {
 
   return next()
 }
-
-export default validateToken

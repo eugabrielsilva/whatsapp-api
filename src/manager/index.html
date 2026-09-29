@@ -2,13 +2,38 @@
 <html lang="en" data-bs-theme="dark">
 
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>WhatsApp API Manager</title>
         <base href="../">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+        <title>WhatsApp API Manager</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css">
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer">
-        <link rel="stylesheet" href="manager/style.css">
+        <style type="text/css">
+            #login {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100vh;
+            }
+
+            #login .card {
+                max-width: 500px;
+                margin: auto;
+            }
+
+            .container {
+                max-width: 1000px;
+            }
+
+            .hide {
+                display: none !important;
+            }
+
+            .page {
+                padding: 30px 0;
+            }
+        </style>
     </head>
 
     <body class="text-bg-dark">
@@ -51,9 +76,12 @@
             <div class="page" id="home">
                 <div class="container">
                     <div class="card">
+                        <div class="card-header">
+                            Connection Info
+                        </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div class="fw-bold">Instance status:</div>
+                                <div>Instance status:</div>
                                 <div class="badge" id="instance-state"></div>
                             </div>
                             <div class="d-flex justify-content-between mt-2">
@@ -85,10 +113,10 @@
             <div class="page hide" id="messages">
                 <div class="container">
                     <div class="card">
+                        <div class="card-header">
+                            Send Test Message
+                        </div>
                         <div class="card-body">
-                            <div class="fw-bold mb-3">
-                                Send Test Message
-                            </div>
                             <form id="testMessage">
                                 <label for="send-test-number" class="form-label">Number</label>
                                 <input required type="tel" class="form-control mb-3" id="send-test-number" placeholder="1234567890">
@@ -98,12 +126,195 @@
                             </form>
                         </div>
                     </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">Last messages</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Number</th>
+                                            <th>Status</th>
+                                            <th>Message</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="last-messages"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="manager/scripts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+
+                let authToken = localStorage.getItem('token');
+
+                if(authToken !== null) {
+                    post('manager/login', {token: authToken}, (data) => {
+                        $('#login').addClass('hide');
+                        $('#manager').removeClass('hide');
+                        updateInstanceStatus();
+                    }, (error) => {
+                        localStorage.removeItem('token');
+                        alert('Invalid token. Please login again.');
+                    });
+                }
+
+                function get(url, callback = null, errorCallback = null) {
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        success: (data) => {
+                            if(callback) {
+                                callback(data)
+                            }
+                        },
+                        error: (error) => {
+                            console.error(error);
+                            if(errorCallback) {
+                                errorCallback(error)
+                            }
+                        },
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    });
+                }
+
+                function post(url, data = {}, callback = null, errorCallback = null) {
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: JSON.stringify(data),
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        success: (data) => {
+                            if(callback) {
+                                callback(data)
+                            }
+                        },
+                        error: (error) => {
+                            console.error(error);
+                            if(errorCallback) {
+                                errorCallback(error)
+                            }
+                        },
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    });
+                }
+
+                function goToPage(id) {
+                    $('.page').addClass('hide');
+                    $(`.page${id}`).removeClass('hide');
+                }
+
+                $('.nav-link').on('click', function(e) {
+                    e.preventDefault();
+                    goToPage($(this).attr('href'));
+                    $('.nav-link').removeClass('active');
+                    $(this).addClass('active');
+                });
+
+                $('#loginForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const password = $('#password').val();
+
+                    post('manager/login', {token: password}, (data) => {
+                        localStorage.setItem('token', password);
+                        $('#login').addClass('hide');
+                        $('#manager').removeClass('hide');
+                        updateInstanceStatus();
+                    }, (error) => {
+                        alert('Wrong password. Try again.');
+                    });
+                });
+
+                function updateInstanceStatus() {
+                    get('info', (data) => {
+                        const state = data?.data?.state ?? 'DISCONNECTED';
+                        const isConnected = state === 'CONNECTED';
+                        const className = isConnected ? 'text-bg-success' : 'text-bg-danger';
+
+                        $('#instance-state').text(state).removeClass('text-bg-success text-bg-danger').addClass(className);
+                        $('#instance-number').text(data?.data?.client?.me?.user ?? 'N/A');
+                        $('#instance-uptime').text(data?.data?.uptime ?? 'N/A');
+                        $('#instance-version').text(data?.data?.version ?? 'N/A');
+                        $('#connection').toggleClass('hide', isConnected);
+                    }, (error) => {
+                        $('#instance-state').text('DISCONNECTED').removeClass('text-bg-success').addClass('text-bg-danger');
+                        $('#instance-number').text('N/A');
+                        $('#instance-uptime').text('N/A');
+                        $('#instance-version').text('N/A');
+                        $('#connection').removeClass('hide');
+                    });
+
+                    get('get-history', (data) => {
+                        $('#last-messages').empty();
+                        data?.data?.forEach(item => {
+                            let className = 'text-bg-warning';
+
+                            switch(item?.status) {
+                                case 'sent':
+                                    className = 'text-bg-success';
+                                    break;
+                                case 'failed':
+                                    className = 'text-bg-danger';
+                                    break;
+                                default:
+                                    className = 'text-bg-warning';
+                                    break;
+                            }
+
+                            const row = `<tr>
+                                <td>${item?.created_at}</td>
+                                <td>${item?.message?.number ?? 'N/A'}</td>
+                                <td><div class="badge ${className}">${item?.status?.toUpperCase() ?? 'N/A'}</div></td>
+                                <td><code>${item?.message?.body ?? ''}</code></td>
+                            </tr>`;
+                            $('#last-messages').prepend(row);
+                        });
+                    });
+                }
+
+                setInterval(updateInstanceStatus, 5000);
+
+                $('#btnConnect').on('click', function(e) {
+                    e.preventDefault();
+
+                    get('login', (data) => {
+                        $('#qr-code').attr('src', data?.data?.base64 ?? '').removeClass('hide');
+                    }, (error) => {
+                        alert('Failed to get QR code. Please try again.');
+                    });
+                });
+
+                $('#testMessage').on('submit', function(e) {
+                    e.preventDefault();
+                    const number = $('#send-test-number').val().replace(/\D/g, '');
+                    const message = $('#send-test-message').val();
+
+                    post(`send-message/${number}`, {message}, (data) => {
+                        updateInstanceStatus();
+                        $('#send-test-number').val('');
+                        $('#send-test-message').val('');
+                        alert('Message sent successfully.');
+                    }, (error) => {
+                        alert('Failed to send message. Please try again.');
+                    });
+                });
+
+            });
+        </script>
     </body>
 
 </html>

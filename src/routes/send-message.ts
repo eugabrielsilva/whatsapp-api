@@ -45,10 +45,18 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
 
     logger('info', `Queuing message "${message}" to ${formattedPhone}...`)
 
-    Queue.add(async () => {
+    Queue.add(async (id) => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, message, {
           quotedMessageId: reply_to || undefined
+        })
+
+        Queue.updateHistory(id, {
+          message: {
+            number: formattedPhone,
+            body: message
+          },
+          status: 'sent'
         })
 
         logger('info', `Message sent to ${formattedPhone}.`)

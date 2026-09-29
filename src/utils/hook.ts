@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { logger } from './format'
 
-function sendHook(hookUrl: string, type: string, body: any): void {
+export default function sendHook(hookUrl: string, type: string, body: any): void {
   const token = process.env.WEBHOOK_SECRET || ''
   axios
     .post(
@@ -24,5 +24,3 @@ function sendHook(hookUrl: string, type: string, body: any): void {
       logger('error', `Failed to sent "${type}" hook.`, error)
     })
 }
-
-export default sendHook

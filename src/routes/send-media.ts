@@ -64,7 +64,7 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
     const media = MessageMedia.fromFilePath(tempFilePath)
     media.filename = file.originalname
 
-    Queue.add(async () => {
+    Queue.add(async (id) => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, message || '', {
           media,
@@ -75,6 +75,19 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
           sendMediaAsSticker: as_sticker || false,
           sendVideoAsGif: as_gif || false,
           quotedMessageId: reply_to || undefined
+        })
+
+        Queue.updateHistory(id, {
+          message: {
+            number: formattedPhone,
+            body: message || '',
+            media: {
+              filename: file.originalname,
+              mimetype: file.mimetype,
+              size: file.size
+            }
+          },
+          status: 'sent'
         })
 
         logger('info', `Media sent to ${formattedPhone}.`)

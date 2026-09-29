@@ -1,10 +1,6 @@
+import { RetryOptions } from "../@types/other"
 import { restartClient } from "./cron"
 import { logger } from "./format"
-
-interface RetryOptions {
-    maxRetries?: number
-    delayMs?: number
-}
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

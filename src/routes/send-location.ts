@@ -59,10 +59,21 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
 
     logger('info', `Queuing location "${latitude},${longitude}" to ${formattedPhone}...`)
 
-    Queue.add(async () => {
+    Queue.add(async (id) => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, location, {
           quotedMessageId: reply_to || undefined
+        })
+
+        Queue.updateHistory(id, {
+          message: {
+            number: formattedPhone,
+            location: {
+              latitude,
+              longitude,
+            }
+          },
+          status: 'sent'
         })
 
         logger('info', `Location sent to ${formattedPhone}.`)

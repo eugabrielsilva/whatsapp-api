@@ -1,4 +1,5 @@
 import { ClientInfo, MessageTypes, WAState } from 'whatsapp-web.js'
+import { MessageHistory } from './other'
 
 export type FormattedMessage = {
   id: string
@@ -108,4 +109,9 @@ export type InfoResponse = {
     state: WAState
     uptime: string
   }
+}
+
+export type GetHistoryResponse = {
+  status: boolean
+  data: MessageHistory[]
 }
