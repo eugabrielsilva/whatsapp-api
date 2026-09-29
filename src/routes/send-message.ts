@@ -5,6 +5,7 @@ import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
 import retry from '../utils/retry'
+import { MessageHistoryData } from '../@types/other'
 
 const router = express.Router()
 
@@ -45,23 +46,20 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
 
     logger('info', `Queuing message "${message}" to ${formattedPhone}...`)
 
-    Queue.add(async (id) => {
+    const historyData: MessageHistoryData = {
+      number: formattedPhone,
+      body: message
+    }
+
+    Queue.add(async () => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, message, {
           quotedMessageId: reply_to || undefined
         })
 
-        Queue.updateHistory(id, {
-          message: {
-            number: formattedPhone,
-            body: message
-          },
-          status: 'sent'
-        })
-
         logger('info', `Message sent to ${formattedPhone}.`)
       })
-    })
+    }, historyData)
 
     res.status(201).json({
       status: true,

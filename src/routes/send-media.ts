@@ -8,6 +8,7 @@ import { SendMediaRequestBody, NumberRequestParams } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
 import retry from '../utils/retry'
+import { MessageHistoryData } from '../@types/other'
 
 const router = express.Router()
 
@@ -64,7 +65,17 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
     const media = MessageMedia.fromFilePath(tempFilePath)
     media.filename = file.originalname
 
-    Queue.add(async (id) => {
+    const historyData: MessageHistoryData = {
+      number: formattedPhone,
+      body: message || '',
+      media: {
+        filename: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      }
+    }
+
+    Queue.add(async () => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, message || '', {
           media,
@@ -77,22 +88,9 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
           quotedMessageId: reply_to || undefined
         })
 
-        Queue.updateHistory(id, {
-          message: {
-            number: formattedPhone,
-            body: message || '',
-            media: {
-              filename: file.originalname,
-              mimetype: file.mimetype,
-              size: file.size
-            }
-          },
-          status: 'sent'
-        })
-
         logger('info', `Media sent to ${formattedPhone}.`)
       })
-    })
+    }, historyData)
 
     res.status(201).json({
       status: true,

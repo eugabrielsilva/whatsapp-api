@@ -6,6 +6,7 @@ import { logger, toClient, toUser } from '../utils/format'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
 import retry from '../utils/retry'
+import { MessageHistoryData } from '../@types/other'
 
 const router = express.Router()
 
@@ -59,26 +60,23 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
 
     logger('info', `Queuing location "${latitude},${longitude}" to ${formattedPhone}...`)
 
-    Queue.add(async (id) => {
+    const historyData: MessageHistoryData = {
+      number: formattedPhone,
+      location: {
+        latitude,
+        longitude,
+      }
+    }
+
+    Queue.add(async () => {
       await retry(async () => {
         await client.sendMessage(chatId._serialized, location, {
           quotedMessageId: reply_to || undefined
         })
 
-        Queue.updateHistory(id, {
-          message: {
-            number: formattedPhone,
-            location: {
-              latitude,
-              longitude,
-            }
-          },
-          status: 'sent'
-        })
-
         logger('info', `Location sent to ${formattedPhone}.`)
       })
-    })
+    }, historyData)
 
     res.status(201).json({
       status: true,

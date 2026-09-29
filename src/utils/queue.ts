@@ -1,4 +1,4 @@
-import { Job, MessageHistory } from "../@types/other"
+import { Job, MessageHistory, MessageHistoryData } from "../@types/other"
 import { logger } from "./format"
 
 export default class Queue {
@@ -6,7 +6,7 @@ export default class Queue {
     static history: MessageHistory[] = []
     static running = false
 
-    static add(callback: (id: string) => Promise<void>): void {
+    static add(callback: () => Promise<void>, message?: MessageHistoryData) {
         const id = crypto.randomUUID()
 
         this.jobs.push({
@@ -19,6 +19,7 @@ export default class Queue {
             job_id: id,
             created_at: new Date().toISOString(),
             status: 'queued',
+            message,
         })
 
         this.run()
@@ -36,7 +37,11 @@ export default class Queue {
 
             try {
                 await this.sleep(job.delay)
-                await job.callback(job.id)
+                await job.callback()
+
+                this.updateHistory(job.id, {
+                    status: 'sent'
+                })
             } catch (error: any) {
                 logger('error', 'Failed to process queue job:', error)
 

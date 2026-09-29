@@ -8,26 +8,28 @@ export type RetryOptions = {
 
 export type Job = {
     id: string
-    callback: (id: string) => Promise<void>
+    callback: () => Promise<void>
     delay: number
+}
+
+export type MessageHistoryData = {
+    number: string
+    body?: string
+    location?: {
+        latitude: number
+        longitude: number
+    },
+    media?: {
+        filename: string
+        mimetype: string
+        size: number
+    }
 }
 
 export type MessageHistory = {
     job_id: string
     created_at: string
     status: 'queued' | 'sent' | 'failed'
-    message?: {
-        number: string
-        body?: string
-        location?: {
-            latitude: number
-            longitude: number
-        },
-        media?: {
-            filename: string
-            mimetype: string
-            size: number
-        }
-    }
+    message?: MessageHistoryData
     error?: any
 }
