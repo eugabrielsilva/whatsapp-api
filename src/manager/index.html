@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WhatsApp API Manager</title>
+        <base href="../">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <link rel="stylesheet" href="manager/style.css">
+    </head>
+
+    <body class="text-bg-dark">
+        <div id="login">
+            <div class="container">
+                <div class="card text-bg-dark">
+                    <div class="card-body py-5 text-center">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" placeholder="Enter your password">
+                            </div>
+                            <button type="submit" class="btn btn-secondary">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="manager" class="hide">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <div class="navbar-brand">WhatsApp API Manager</div>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#home">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#messages">Messages</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="page" id="home">
+                <div class="container">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-bold">Instance status:</div>
+                                <div class="badge" id="instance-state"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div>Phone number:</div>
+                                <div id="instance-number"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div>Uptime:</div>
+                                <div id="instance-uptime"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div>Client version:</div>
+                                <div id="instance-version"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="connection" class="card hide mt-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h6 class="m-0">Connect to Instance</h6>
+                                <button type="button" class="btn btn-sm btn-success" id="btnConnect">Connect</button>
+                            </div>
+                            <img src="" id="qr-code" class="img-fluid mt-2 hide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page hide" id="messages">
+                <div class="container">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="fw-bold mb-3">
+                                Send Test Message
+                            </div>
+                            <form id="testMessage">
+                                <label for="send-test-number" class="form-label">Number</label>
+                                <input required type="tel" class="form-control mb-3" id="send-test-number" placeholder="1234567890">
+                                <label for="send-test-message" class="form-label">Message</label>
+                                <textarea required class="form-control" id="send-test-message"></textarea>
+                                <button type="submit" class="btn btn-sm btn-light mt-3">Send</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="manager/scripts.js"></script>
+    </body>
+
+</html>

@@ -4,7 +4,11 @@ function validateToken(req: Request, res: Response, next: NextFunction): void {
   const authToken = process.env.AUTH_TOKEN
   if (!authToken?.length) return next()
 
-  const excludedRoutes = ['/test-hook', '/media/*']
+  const excludedRoutes = [
+    '/test-hook',
+    '/media/*',
+    '/manager/*'
+  ]
 
   if (excludedRoutes.some(route => req.path.match(new RegExp(`^${route}$`)))) {
     return next()

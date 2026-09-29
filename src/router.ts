@@ -15,6 +15,7 @@ import getMeRoute from './routes/get-me'
 import setOfflineRoute from './routes/set-offline'
 import setOnlineRoute from './routes/set-online'
 import infoRoute from './routes/info'
+import managerRoute from './routes/manager'
 
 const ROUTES: [string, Router][] = [
   ['/login', loginRoute],
@@ -32,7 +33,8 @@ const ROUTES: [string, Router][] = [
   ['/search-messages', searchMessagesRoute],
   ['/test-hook', testHookRoute],
   ['/check-login', checkLoginRoute],
-  ['/info', infoRoute]
+  ['/info', infoRoute],
+  ['/manager', managerRoute]
 ]
 
 export class AppRouter {
