@@ -33,6 +33,9 @@ client.on('ready', () => {
   const number = toUser(client.info.wid.user)
   logger('auth', `Connected to WhatsApp with ${number}.`)
   logger('auth', 'Client is ready.')
+
+  // @ts-ignore
+  client.isReady = true
 })
 
 client.on('auth_failure', (error: string) => {

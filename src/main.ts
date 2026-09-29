@@ -5,7 +5,7 @@ import validateToken from './utils/validate-token'
 import path from 'path'
 import { logger } from './utils/format'
 import cron from 'node-cron'
-import clearMediaCron from './utils/cron'
+import { checkClientHealth, clearMediaCron } from './utils/cron'
 import client from './utils/client'
 import { AppRouter } from './router'
 
@@ -29,13 +29,14 @@ new AppRouter(app)
 const HOST = process.env.HOST || 'http://localhost'
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger('info', `Server started at ${HOST}:${PORT}.`)
   logger('auth', 'Please wait to establish connection...')
 
   // Initialize client
-  client.initialize()
+  await client.initialize()
 
   // Cron jobs
   cron.schedule('0 * * * *', clearMediaCron)
+  cron.schedule('*/10 * * * *', checkClientHealth)
 })
