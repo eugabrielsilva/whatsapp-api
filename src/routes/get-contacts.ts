@@ -3,6 +3,7 @@ import client from '../utils/client'
 import { logger, parseContact } from '../utils/format'
 import { Contact } from 'whatsapp-web.js'
 import { ErrorResponse, GetContactsResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -10,7 +11,9 @@ router.get('/', async (req: Request, res: Response<GetContactsResponse | ErrorRe
   logger('info', 'Getting all contacts...')
 
   try {
-    const contacts = await client.getContacts()
+    const contacts = await retry(async () => {
+      return await client.getContacts()
+    })
 
     const parsedContacts = await Promise.all(
       contacts.map(async (contact: Contact) => {

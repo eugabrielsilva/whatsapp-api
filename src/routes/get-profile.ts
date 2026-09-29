@@ -3,6 +3,7 @@ import client from '../utils/client'
 import { NumberRequestParams } from '../@types/request'
 import { logger, parseContact, toClient, toUser } from '../utils/format'
 import { ErrorResponse, GetProfileResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -18,20 +19,26 @@ router.get('/:number', async (req: Request<NumberRequestParams>, res: Response<G
   }
 
   const formattedPhone = toUser(number)
-  const chatId = await client.getNumberId(toClient(number))
-
-  if (!chatId) {
-    res.status(404).json({
-      status: false,
-      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
-    })
-    return
-  }
-
-  logger('info', `Getting profile ${formattedPhone}...`)
 
   try {
-    const contact = await client.getContactById(chatId._serialized)
+    const chatId = await retry(async () => {
+      return await client.getNumberId(toClient(number))
+    })
+
+    if (!chatId) {
+      res.status(404).json({
+        status: false,
+        error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+      })
+      return
+    }
+
+    logger('info', `Getting profile ${formattedPhone}...`)
+
+    const contact = await retry(async () => {
+      return await client.getContactById(chatId._serialized)
+    })
+
     const profilePicture = await contact.getProfilePicUrl()
     const status = await contact.getAbout()
 

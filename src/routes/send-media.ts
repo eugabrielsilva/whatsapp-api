@@ -7,6 +7,7 @@ import { MessageMedia } from 'whatsapp-web.js'
 import { SendMediaRequestBody, NumberRequestParams } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -43,37 +44,42 @@ router.post('/:number', upload.single('file'), async (req: Request<NumberRequest
   }
 
   const formattedPhone = toUser(number)
-  const chatId = await client.getNumberId(toClient(number))
-
-  if (!chatId) {
-    res.status(404).json({
-      status: false,
-      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
-    })
-    return
-  }
-
-  logger('info', `Sending media to ${formattedPhone}...`)
-
-  const tempFilePath = file.path
-  const media = MessageMedia.fromFilePath(tempFilePath)
-  media.filename = file.originalname
 
   try {
-    Queue.add(async () => {
-      await client.sendMessage(chatId._serialized, message || '', {
-        media,
-        caption: message || undefined,
-        isViewOnce: view_once || false,
-        sendMediaAsDocument: as_document || false,
-        sendAudioAsVoice: as_voice || false,
-        sendMediaAsSticker: as_sticker || false,
-        sendVideoAsGif: as_gif || false,
-        quotedMessageId: reply_to || undefined
-      })
+    const chatId = await retry(async () => {
+      return await client.getNumberId(toClient(number))
     })
 
-    logger('info', `Media sent to ${formattedPhone}.`)
+    if (!chatId) {
+      res.status(404).json({
+        status: false,
+        error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+      })
+      return
+    }
+
+    logger('info', `Queuing media to ${formattedPhone}...`)
+
+    const tempFilePath = file.path
+    const media = MessageMedia.fromFilePath(tempFilePath)
+    media.filename = file.originalname
+
+    Queue.add(async () => {
+      await retry(async () => {
+        await client.sendMessage(chatId._serialized, message || '', {
+          media,
+          caption: message || undefined,
+          isViewOnce: view_once || false,
+          sendMediaAsDocument: as_document || false,
+          sendAudioAsVoice: as_voice || false,
+          sendMediaAsSticker: as_sticker || false,
+          sendVideoAsGif: as_gif || false,
+          quotedMessageId: reply_to || undefined
+        })
+
+        logger('info', `Media sent to ${formattedPhone}.`)
+      })
+    })
 
     res.status(201).json({
       status: true,

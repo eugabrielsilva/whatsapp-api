@@ -4,6 +4,7 @@ import { toClient, toUser, logger } from '../utils/format'
 import { NumberRequestParams, SendMessageRequestBody } from '../@types/request'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -28,26 +29,31 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendMessag
   }
 
   const formattedPhone = toUser(number)
-  const chatId = await client.getNumberId(toClient(number))
-
-  if (!chatId) {
-    res.status(404).json({
-      status: false,
-      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
-    })
-    return
-  }
-
-  logger('info', `Sending message "${message}" to ${formattedPhone}...`)
 
   try {
-    Queue.add(async () => {
-      await client.sendMessage(chatId._serialized, message, {
-        quotedMessageId: reply_to || undefined
-      })
+    const chatId = await retry(async () => {
+      return await client.getNumberId(toClient(number))
     })
 
-    logger('info', `Message sent to ${formattedPhone}.`)
+    if (!chatId) {
+      res.status(404).json({
+        status: false,
+        error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+      })
+      return
+    }
+
+    logger('info', `Queuing message "${message}" to ${formattedPhone}...`)
+
+    Queue.add(async () => {
+      await retry(async () => {
+        await client.sendMessage(chatId._serialized, message, {
+          quotedMessageId: reply_to || undefined
+        })
+
+        logger('info', `Message sent to ${formattedPhone}.`)
+      })
+    })
 
     res.status(201).json({
       status: true,

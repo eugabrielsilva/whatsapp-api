@@ -4,6 +4,7 @@ import client from '../utils/client'
 import { toClient, toUser, logger, getMessageBody } from '../utils/format'
 import { GetChatRequestQuery, NumberRequestParams } from '../@types/request'
 import { ErrorResponse, GetChatResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -20,21 +21,29 @@ router.get('/:number', async (req: Request<NumberRequestParams, any, any, GetCha
   }
 
   const formattedPhone = toUser(number)
-  const chatId = await client.getNumberId(toClient(number))
-
-  if (!chatId) {
-    res.status(404).json({
-      status: false,
-      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
-    })
-    return
-  }
-
-  logger('info', `Getting chat from ${formattedPhone}...`)
 
   try {
-    const chat = await client.getChatById(chatId._serialized)
-    const messages = await chat.fetchMessages({ limit })
+    const chatId = await retry(async () => {
+      return await client.getNumberId(toClient(number))
+    })
+
+    if (!chatId) {
+      res.status(404).json({
+        status: false,
+        error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+      })
+      return
+    }
+
+    logger('info', `Getting chat from ${formattedPhone}...`)
+
+    const chat = await retry(async () => {
+      return await client.getChatById(chatId._serialized)
+    })
+
+    const messages = await retry(async () => {
+      return await chat.fetchMessages({ limit })
+    })
 
     const parsedMessages = await Promise.all(
       messages.map(async (message: Message) => {

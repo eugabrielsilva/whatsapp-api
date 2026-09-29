@@ -4,6 +4,7 @@ import client from '../utils/client'
 import { toClient, logger, getMessageBody, toUser } from '../utils/format'
 import { SearchMessagesRequestQuery } from '../@types/request'
 import { ErrorResponse, GetChatResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -25,7 +26,11 @@ router.get('/', async (req: Request<any, any, any, SearchMessagesRequestQuery>, 
 
     if (number?.length) {
       const formattedPhone = toUser(number)
-      const numberChatId = await client.getNumberId(toClient(number))
+
+      const numberChatId = await retry(async () => {
+        return await client.getNumberId(toClient(number))
+      })
+
       if (!numberChatId) {
         res.status(404).json({
           status: false,
@@ -37,10 +42,12 @@ router.get('/', async (req: Request<any, any, any, SearchMessagesRequestQuery>, 
       chatId = numberChatId._serialized
     }
 
-    const messages = await client.searchMessages(query, {
-      limit,
-      page,
-      chatId
+    const messages = await retry(async () => {
+      return await client.searchMessages(query, {
+        limit,
+        page,
+        chatId
+      })
     })
 
     const parsedMessages = await Promise.all(

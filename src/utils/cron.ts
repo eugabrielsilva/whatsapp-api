@@ -5,6 +5,7 @@ import client from './client'
 import { WAState } from 'whatsapp-web.js'
 
 let isRestarting = false
+let restartPromise: Promise<void> | null = null
 
 export function clearMediaCron() {
   const folderPath = path.join(process.cwd(), 'public/media')
@@ -29,32 +30,52 @@ export function clearMediaCron() {
   logger('info', `Cleared ${count} media files.`)
 }
 
-export async function checkClientHealth() {
-  // @ts-ignore
-  if (!client.isReady || isRestarting) return
+export async function restartClient() {
+  if (isRestarting && restartPromise) return restartPromise
+  isRestarting = true
 
-  try {
-    const state = await client.getState()
-
-    if (state !== WAState.CONNECTED) {
-      throw new Error('Client not connected')
-    }
-  } catch (error) {
-    logger('error', 'Client is not healthy. Attempting to restart...', error)
-
-    isRestarting = true
-
+  restartPromise = (async () => {
     try {
       await client.destroy()
 
       // @ts-ignore
       client.isReady = false
-      await client.initialize()
 
-      isRestarting = false
-    } catch (err) {
-      logger('error', 'Failed to restart client. Killing process...', err)
+      await client.initialize()
+    } catch (error: any) {
+      logger('error', 'Failed to restart client. Killing process...', error)
       process.exit(1)
+    } finally {
+      isRestarting = false
+      restartPromise = null
     }
+  })()
+
+  return restartPromise
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms)
+  )
+  return Promise.race([promise, timeout])
+}
+
+export async function checkClientHealth() {
+  // @ts-ignore
+  if (!client || !client.isReady) {
+    logger('warning', 'Client is not ready or unitialized during health check.')
+    return
+  }
+
+  try {
+    const state = await withTimeout(client.getState(), 30000)
+
+    if (state !== WAState.CONNECTED) {
+      throw new Error(`Client in invalid state: ${state}`)
+    }
+  } catch (error: any) {
+    logger('error', 'Client health check failed. Attempting to restart...', error)
+    await restartClient()
   }
 }

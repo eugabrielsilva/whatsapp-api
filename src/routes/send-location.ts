@@ -5,6 +5,7 @@ import { Location } from 'whatsapp-web.js'
 import { logger, toClient, toUser } from '../utils/format'
 import { CreatedResponse, ErrorResponse } from '../@types/response'
 import Queue from '../utils/queue'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -42,26 +43,31 @@ router.post('/:number', async (req: Request<NumberRequestParams, any, SendLocati
   })
 
   const formattedPhone = toUser(number)
-  const chatId = await client.getNumberId(toClient(number))
-
-  if (!chatId) {
-    res.status(404).json({
-      status: false,
-      error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
-    })
-    return
-  }
-
-  logger('info', `Sending location "${latitude},${longitude}" to ${formattedPhone}...`)
 
   try {
-    Queue.add(async () => {
-      await client.sendMessage(chatId._serialized, location, {
-        quotedMessageId: reply_to || undefined
-      })
+    const chatId = await retry(async () => {
+      return await client.getNumberId(toClient(number))
     })
 
-    logger('info', `Location sent to ${formattedPhone}.`)
+    if (!chatId) {
+      res.status(404).json({
+        status: false,
+        error: `Number ${formattedPhone} is invalid or not registered on WhatsApp.`
+      })
+      return
+    }
+
+    logger('info', `Queuing location "${latitude},${longitude}" to ${formattedPhone}...`)
+
+    Queue.add(async () => {
+      await retry(async () => {
+        await client.sendMessage(chatId._serialized, location, {
+          quotedMessageId: reply_to || undefined
+        })
+
+        logger('info', `Location sent to ${formattedPhone}.`)
+      })
+    })
 
     res.status(201).json({
       status: true,

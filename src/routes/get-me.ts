@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { logger, parseContact } from '../utils/format'
 import { ErrorResponse, GetProfileResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -11,7 +12,10 @@ router.get('/', async (req: Request, res: Response<GetProfileResponse | ErrorRes
   logger('info', `Getting current user profile...`)
 
   try {
-    const contact = await client.getContactById(chatId)
+    const contact = await retry(async () => {
+      return await client.getContactById(chatId)
+    })
+
     const profilePicture = await contact.getProfilePicUrl()
     const status = await contact.getAbout()
 

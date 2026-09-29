@@ -3,6 +3,7 @@ import client from '../utils/client'
 import { logger, parseChatInfo } from '../utils/format'
 import { Chat } from 'whatsapp-web.js'
 import { ErrorResponse, GetChatsResponse } from '../@types/response'
+import retry from '../utils/retry'
 
 const router = express.Router()
 
@@ -10,7 +11,10 @@ router.get('/', async (req: Request, res: Response<GetChatsResponse | ErrorRespo
   logger('info', 'Getting all chats...')
 
   try {
-    const chats = await client.getChats()
+    const chats = await retry(async () => {
+      return await client.getChats()
+    })
+
     const parsedChats = chats.map((chat: Chat) => {
       return parseChatInfo(chat)
     })
