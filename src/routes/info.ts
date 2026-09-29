@@ -1,21 +1,24 @@
 import express, { Request, Response } from 'express'
 import client from '../utils/client'
 import { ErrorResponse, InfoResponse } from '../@types/response'
-import { logger } from '../utils/format'
+import { formatUptime, logger } from '../utils/format'
 
 const router = express.Router()
+const startTime = new Date()
 
 router.get('/', async (req: Request, res: Response<InfoResponse | ErrorResponse>) => {
   try {
     const version = await client.getWWebVersion()
     const state = await client.getState()
+    const uptime = formatUptime(Math.floor((new Date().getTime() - startTime.getTime()) / 1000))
 
     res.status(200).json({
       status: true,
       data: {
         client: client.info,
         version,
-        state
+        state,
+        uptime
       }
     })
   } catch (error: any) {

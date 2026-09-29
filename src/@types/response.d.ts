@@ -106,5 +106,6 @@ export type InfoResponse = {
     client: ClientInfo
     version: string
     state: WAState
+    uptime: string
   }
 }

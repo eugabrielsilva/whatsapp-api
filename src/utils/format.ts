@@ -168,3 +168,11 @@ export function logger(type: string, message: string, ...optionalParams: any[]):
 
   log(`${color}[${date}] [${type.toUpperCase()}] ${message}${colors.reset}`, ...optionalParams)
 }
+
+export function formatUptime(totalSeconds: number) {
+  const days = Math.floor(totalSeconds / (3600 * 24))
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  return `${days}d${hours}h${minutes}m${seconds}s`
+}
